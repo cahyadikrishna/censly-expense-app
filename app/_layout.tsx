@@ -7,6 +7,7 @@ import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { supabase } from "@lib/supabase";
 import { useAuthStore } from "@stores/authStore";
+import { ActivityIndicator, View } from "react-native";
 
 const queryClient = new QueryClient();
 
@@ -29,11 +30,31 @@ export default function RootLayout() {
   useEffect(() => {
     const inAuthGroup = segments[0] === "(auth)";
 
-    // DEV BYPASS: skip auth check, always go to tabs
-    if (inAuthGroup) {
-      router.replace("/(tabs)");
+    if (session) {
+      // User is authenticated
+      if (inAuthGroup) {
+        // Redirect from auth to tabs
+        router.replace("/(tabs)");
+      }
+    } else {
+      // User is not authenticated
+      if (!inAuthGroup) {
+        // Redirect to auth screen
+        router.replace("/(auth)/sign-in");
+      }
     }
   }, [session, segments]);
+
+  // Show loading screen while checking auth
+  if (!session && segments[0] !== "(auth)") {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View className="flex-1 bg-background items-center justify-center">
+          <ActivityIndicator size="large" color="#4ADE80" />
+        </View>
+      </GestureHandlerRootView>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
