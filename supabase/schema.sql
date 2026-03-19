@@ -29,6 +29,7 @@ create table transactions (
   note text,
   date date not null default current_date,
   receipt_url text,
+  is_deleted boolean default false,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
