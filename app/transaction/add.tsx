@@ -17,6 +17,7 @@ import DateTimePicker, {
 import { useCategories } from "@hooks/useCategories";
 import { useCreateTransaction } from "@hooks/useTransactions";
 import { formatIDRInput, parseIDR } from "@lib/currency";
+import CategoryChip from "@components/CategoryChip";
 import type { TransactionType, CategoryItem } from "../../types";
 
 export default function AddTransaction() {
@@ -153,24 +154,12 @@ export default function AddTransaction() {
                 className="flex-row"
               >
                 {categories.map((category) => (
-                  <TouchableOpacity
+                  <CategoryChip
                     key={category.id}
-                    className={`mr-3 px-4 py-3 rounded-xl flex-row items-center bg-surface ${
-                      selectedCategory?.id === category.id ? "border-2" : ""
-                    }`}
-                    style={{
-                      borderColor:
-                        selectedCategory?.id === category.id
-                          ? category.color
-                          : "transparent",
-                    }}
-                    onPress={() => setSelectedCategory(category)}
-                  >
-                    <Text className="text-xl mr-2">{category.icon}</Text>
-                    <Text className="text-gray-900 font-medium">
-                      {category.name}
-                    </Text>
-                  </TouchableOpacity>
+                    category={category}
+                    isSelected={selectedCategory?.id === category.id}
+                    onPress={setSelectedCategory}
+                  />
                 ))}
               </ScrollView>
             ) : (

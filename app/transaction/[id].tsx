@@ -23,6 +23,8 @@ import {
   useDeleteTransaction,
 } from "@hooks/useTransactions";
 import { formatIDRInput, parseIDR, formatIDR } from "@lib/currency";
+import EmojiText from "@components/EmojiText";
+import CategoryChip from "@components/CategoryChip";
 import type { TransactionType, CategoryItem } from "../../types";
 
 export default function EditTransaction() {
@@ -231,24 +233,12 @@ export default function EditTransaction() {
                 className="flex-row"
               >
                 {categories.map((category) => (
-                  <TouchableOpacity
+                  <CategoryChip
                     key={category.id}
-                    className={`mr-3 px-4 py-3 rounded-xl flex-row items-center bg-surface ${
-                      selectedCategory?.id === category.id ? "border-2" : ""
-                    }`}
-                    style={{
-                      borderColor:
-                        selectedCategory?.id === category.id
-                          ? category.color
-                          : "transparent",
-                    }}
-                    onPress={() => setSelectedCategory(category)}
-                  >
-                    <Text className="text-xl mr-2">{category.icon}</Text>
-                    <Text className="text-gray-900 font-medium">
-                      {category.name}
-                    </Text>
-                  </TouchableOpacity>
+                    category={category}
+                    isSelected={selectedCategory?.id === category.id}
+                    onPress={setSelectedCategory}
+                  />
                 ))}
               </ScrollView>
             ) : (
@@ -359,10 +349,11 @@ export default function EditTransaction() {
               <View className="bg-gray-50 rounded-xl p-4 mb-6">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
-                    <Text className="text-xl mr-2">
-                      {transaction.category?.icon || "📦"}
-                    </Text>
-                    <Text className="text-gray-900 font-medium">
+                    <EmojiText
+                      text={transaction.category?.icon || "📦"}
+                      size={20}
+                    />
+                    <Text className="text-gray-900 font-medium ml-2">
                       {transaction.category?.name || "Unknown"}
                     </Text>
                   </View>

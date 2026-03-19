@@ -1,30 +1,40 @@
+import React, { useMemo, useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { formatIDR } from "@lib/currency";
 import { useTransactions } from "@hooks/useTransactions";
+import { usePrefetchEmojis } from "@hooks/usePrefetchEmojis";
 import FAB from "@components/FAB";
+import EmojiText from "@components/EmojiText";
 import type { Transaction } from "../../types";
 
 export default function Home() {
   const router = useRouter();
-  
-  // Fetch recent transactions (limit to 5 most recent)
+
+  usePrefetchEmojis();
+
   const { data: transactions, isLoading } = useTransactions({});
   const recentTransactions = transactions?.slice(0, 5) ?? [];
 
-  // Calculate summary from transactions
-  const totalIncome = transactions
-    ?.filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0) ?? 0;
-  
-  const totalExpense = transactions
-    ?.filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0) ?? 0;
-  
+  const totalIncome = useMemo(
+    () =>
+      transactions
+        ?.filter((t) => t.type === "income")
+        .reduce((sum, t) => sum + t.amount, 0) ?? 0,
+    [transactions]
+  );
+
+  const totalExpense = useMemo(
+    () =>
+      transactions
+        ?.filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0) ?? 0,
+    [transactions]
+  );
+
   const balance = totalIncome - totalExpense;
 
-  // Format date for display
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -43,16 +53,59 @@ export default function Home() {
     }
   };
 
-  const handleTransactionPress = (transaction: Transaction) => {
-    router.push(`/transaction/${transaction.id}`);
-  };
+  const handleTransactionPress = useCallback(
+    (transaction: Transaction) => {
+      router.push(`/transaction/${transaction.id}`);
+    },
+    [router]
+  );
+
+  const renderTransactionItem = useCallback(
+    (transaction: Transaction, isLast: boolean) => (
+      <TouchableOpacity
+        key={transaction.id}
+        className={`flex-row items-center p-4 ${!isLast ? "border-b border-gray-200" : ""}`}
+        onPress={() => handleTransactionPress(transaction)}
+        activeOpacity={0.7}
+      >
+        <View
+          className="w-10 h-10 rounded-full items-center justify-center mr-3"
+          style={{ backgroundColor: (transaction.category?.color || "#A3A3A3") + "20" }}
+        >
+          <EmojiText
+            text={transaction.category?.icon || "📦"}
+            size={20}
+          />
+        </View>
+        <View className="flex-1">
+          <Text className="text-gray-900 font-medium">
+            {transaction.category?.name || "Uncategorized"}
+          </Text>
+          <Text className="text-gray-400 text-xs mt-0.5">
+            {formatDate(transaction.date)}
+            {transaction.note ? ` • ${transaction.note}` : ""}
+          </Text>
+        </View>
+        <Text
+          className={`font-semibold ${
+            transaction.type === "income"
+              ? "text-accent-green"
+              : "text-accent-red"
+          }`}
+        >
+          {transaction.type === "income" ? "+" : "-"}
+          {formatIDR(transaction.amount)}
+        </Text>
+      </TouchableOpacity>
+    ),
+    [handleTransactionPress]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1 px-5 pt-4">
         <Text className="text-gray-900 text-2xl font-bold mb-6">Censly</Text>
 
-        {/* Balance Card */}
         <View className="bg-surface rounded-2xl p-5 mb-6">
           <Text className="text-gray-500 text-sm mb-1">Total Balance</Text>
           <Text className={`text-3xl font-bold ${balance >= 0 ? "text-gray-900" : "text-accent-red"}`}>
@@ -75,7 +128,6 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Recent Transactions */}
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-gray-900 text-lg font-semibold">
             Recent Transactions
@@ -94,44 +146,9 @@ export default function Home() {
           </View>
         ) : recentTransactions.length > 0 ? (
           <View className="bg-surface rounded-2xl overflow-hidden">
-            {recentTransactions.map((transaction, index) => (
-              <TouchableOpacity
-                key={transaction.id}
-                className={`flex-row items-center p-4 ${
-                  index < recentTransactions.length - 1 ? "border-b border-gray-200" : ""
-                }`}
-                onPress={() => handleTransactionPress(transaction)}
-                activeOpacity={0.7}
-              >
-                <View
-                  className="w-10 h-10 rounded-full items-center justify-center mr-3"
-                  style={{ backgroundColor: transaction.category?.color + "20" }}
-                >
-                  <Text className="text-lg">
-                    {transaction.category?.icon || "📦"}
-                  </Text>
-                </View>
-                <View className="flex-1">
-                  <Text className="text-gray-900 font-medium">
-                    {transaction.category?.name || "Uncategorized"}
-                  </Text>
-                  <Text className="text-gray-400 text-xs mt-0.5">
-                    {formatDate(transaction.date)}
-                    {transaction.note ? ` • ${transaction.note}` : ""}
-                  </Text>
-                </View>
-                <Text
-                  className={`font-semibold ${
-                    transaction.type === "income"
-                      ? "text-accent-green"
-                      : "text-accent-red"
-                  }`}
-                >
-                  {transaction.type === "income" ? "+" : "-"}
-                  {formatIDR(transaction.amount)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {recentTransactions.map((transaction, index) =>
+              renderTransactionItem(transaction, index === recentTransactions.length - 1)
+            )}
           </View>
         ) : (
           <View className="bg-surface rounded-2xl p-5 items-center py-10">
@@ -144,11 +161,9 @@ export default function Home() {
           </View>
         )}
 
-        {/* Bottom padding for FAB */}
         <View className="h-20" />
       </ScrollView>
 
-      {/* Floating Action Button */}
       <FAB />
     </SafeAreaView>
   );

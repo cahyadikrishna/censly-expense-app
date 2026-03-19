@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTransactions } from "@hooks/useTransactions";
 import { formatIDR } from "@lib/currency";
+import TransactionItem from "@components/TransactionItem";
 import type { Transaction, TransactionType } from "../../types";
 
 type FilterType = "all" | TransactionType;
@@ -66,7 +67,7 @@ export default function Transactions() {
     }
   }
 
-  const getDailyTotal = (data: Transaction[]) => {
+  const getDailyTotal = useCallback((data: Transaction[]) => {
     const income = data
       .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
@@ -74,84 +75,49 @@ export default function Transactions() {
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
     return income - expense;
-  };
+  }, []);
 
-  const handleTransactionPress = (transaction: Transaction) => {
+  const handleTransactionPress = useCallback((transaction: Transaction) => {
     router.push(`/transaction/${transaction.id}`);
-  };
+  }, [router]);
 
-  const renderFilterButton = (type: FilterType, label: string) => (
-    <TouchableOpacity
-      className={`px-4 py-2 rounded-lg mr-2 ${
-        filter === type ? "bg-accent-green" : "bg-surface"
-      }`}
-      onPress={() => setFilter(type)}
-    >
-      <Text
-        className={`font-medium ${
-          filter === type ? "text-white" : "text-gray-500"
-        }`}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderTransaction = ({ item }: { item: Transaction }) => (
-    <TouchableOpacity
-      className="flex-row items-center py-3"
-      onPress={() => handleTransactionPress(item)}
-      activeOpacity={0.7}
-    >
-      <View
-        className="w-10 h-10 rounded-full items-center justify-center mr-3"
-        style={{ backgroundColor: (item.category?.color || "#A3A3A3") + "20" }}
-      >
-        <Text className="text-lg">{item.category?.icon || "📦"}</Text>
-      </View>
-      <View className="flex-1">
-        <Text className="text-gray-900 font-medium">
-          {item.category?.name || "Uncategorized"}
-        </Text>
-        {item.note && (
-          <Text className="text-gray-400 text-xs mt-0.5" numberOfLines={1}>
-            {item.note}
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { title: string; data: Transaction[] } }) => {
+      const dailyTotal = getDailyTotal(section.data);
+      return (
+        <View className="flex-row items-center justify-between py-3 bg-background">
+          <Text className="text-gray-500 text-sm font-medium">
+            {section.title}
           </Text>
-        )}
-      </View>
-      <Text
-        className={`font-semibold ${
-          item.type === "income" ? "text-accent-green" : "text-accent-red"
-        }`}
-      >
-        {item.type === "income" ? "+" : "-"}
-        {formatIDR(item.amount)}
-      </Text>
-    </TouchableOpacity>
+          <Text
+            className={`text-sm font-medium ${
+              dailyTotal >= 0 ? "text-accent-green" : "text-accent-red"
+            }`}
+          >
+            {dailyTotal >= 0 ? "+" : ""}
+            {formatIDR(dailyTotal)}
+          </Text>
+        </View>
+      );
+    },
+    [getDailyTotal]
   );
 
-  const renderSectionHeader = ({
-    section,
-  }: {
-    section: { title: string; data: Transaction[] };
-  }) => {
-    const dailyTotal = getDailyTotal(section.data);
-    return (
-      <View className="flex-row items-center justify-between py-3 bg-background">
-        <Text className="text-gray-500 text-sm font-medium">
-          {section.title}
-        </Text>
-        <Text
-          className={`text-sm font-medium ${
-            dailyTotal >= 0 ? "text-accent-green" : "text-accent-red"
-          }`}
-        >
-          {dailyTotal >= 0 ? "+" : ""}
-          {formatIDR(dailyTotal)}
-        </Text>
-      </View>
-    );
-  };
+  const renderTransaction = useCallback(
+    ({ item }: { item: Transaction }) => (
+      <TransactionItem
+        transaction={item}
+        onPress={handleTransactionPress}
+        showNote
+      />
+    ),
+    [handleTransactionPress]
+  );
+
+  const ItemSeparator = useCallback(
+    () => <View className="h-px bg-gray-200" />,
+    []
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -159,9 +125,44 @@ export default function Transactions() {
         <Text className="text-gray-900 text-2xl font-bold mb-4">Transactions</Text>
 
         <View className="flex-row mb-4">
-          {renderFilterButton("all", "All")}
-          {renderFilterButton("expense", "Expense")}
-          {renderFilterButton("income", "Income")}
+          {filter === "all" ? (
+            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
+              <Text className="font-medium text-white">All</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="px-4 py-2 rounded-lg mr-2 bg-surface"
+              onPress={() => setFilter("all")}
+            >
+              <Text className="font-medium text-gray-500">All</Text>
+            </TouchableOpacity>
+          )}
+
+          {filter === "expense" ? (
+            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
+              <Text className="font-medium text-white">Expense</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="px-4 py-2 rounded-lg mr-2 bg-surface"
+              onPress={() => setFilter("expense")}
+            >
+              <Text className="font-medium text-gray-500">Expense</Text>
+            </TouchableOpacity>
+          )}
+
+          {filter === "income" ? (
+            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
+              <Text className="font-medium text-white">Income</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              className="px-4 py-2 rounded-lg mr-2 bg-surface"
+              onPress={() => setFilter("income")}
+            >
+              <Text className="font-medium text-gray-500">Income</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {isLoading ? (
@@ -180,9 +181,10 @@ export default function Transactions() {
             stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
-            ItemSeparatorComponent={() => (
-              <View className="h-px bg-gray-200" />
-            )}
+            ItemSeparatorComponent={ItemSeparator}
+            initialNumToRender={15}
+            maxToRenderPerBatch={10}
+            windowSize={10}
           />
         ) : (
           <View className="flex-1 items-center justify-center">
