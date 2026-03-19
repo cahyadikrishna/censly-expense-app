@@ -1,92 +1,125 @@
--- Censly Database Schema
--- Run this in Supabase SQL Editor (Dashboard → SQL Editor → New query)
+-- Censly Database Schema v2
+-- Run this in Supabase SQL Editor (Dashboard > SQL Editor > New query)
 --
--- BEFORE RUNNING:
--- 1. Go to Authentication → Users → Add user → create a test user
--- 2. Copy that user's UUID
--- 3. Replace '00000000-0000-0000-0000-000000000001' below with that UUID
+-- This schema uses a two-table approach for categories:
+-- 1. categories_default: System default categories (read-only for users)
+-- 2. categories_custom: User custom categories (CRUD by owner)
+--
+-- Transactions reference either table via category_id + category_source
 
--- 1. Categories table
-create table categories (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade,
-  name text not null,
-  icon text not null default '📦',
-  color text not null default '#A3A3A3',
-  type text not null check (type in ('income', 'expense')),
-  sort_order integer default 0,
-  is_deleted boolean default false,
-  created_at timestamptz default now()
+-- ============================================================
+-- STEP 1: Create categories_default table (system defaults)
+-- ============================================================
+CREATE TABLE categories_default (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  icon text NOT NULL DEFAULT '📦',
+  color text NOT NULL DEFAULT '#A3A3A3',
+  type text NOT NULL CHECK (type IN ('income', 'expense')),
+  sort_order integer DEFAULT 0,
+  created_at timestamptz DEFAULT now()
 );
 
--- 2. Transactions table
-create table transactions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade,
-  category_id uuid references categories(id) on delete set null,
-  type text not null check (type in ('income', 'expense')),
-  amount bigint not null,
+-- RLS: All authenticated users can read default categories
+ALTER TABLE categories_default ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "authenticated users can read default categories"
+  ON categories_default FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Seed default categories
+INSERT INTO categories_default (name, icon, color, type, sort_order) VALUES
+  -- Expense categories
+  ('Makan',     '🍜', '#F87171', 'expense', 1),
+  ('Transport', '🚗', '#FB923C', 'expense', 2),
+  ('Belanja',   '🛍️', '#A78BFA', 'expense', 3),
+  ('Tagihan',   '💡', '#60A5FA', 'expense', 4),
+  ('Kesehatan', '💊', '#34D399', 'expense', 5),
+  ('Hiburan',   '🎮', '#F472B6', 'expense', 6),
+  ('Lainnya',   '📦', '#A3A3A3', 'expense', 7),
+  -- Income categories
+  ('Gaji',      '💰', '#4ADE80', 'income',  1),
+  ('Freelance', '💻', '#4ADE80', 'income',  2),
+  ('Investasi', '📈', '#34D399', 'income',  3),
+  ('Lainnya',   '📦', '#A3A3A3', 'income',  4);
+
+-- ============================================================
+-- STEP 3: Create categories custom table (user custom categories)
+-- ============================================================
+
+CREATE TABLE categories_custom (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  icon text NOT NULL DEFAULT '📦',
+  color text NOT NULL DEFAULT '#A3A3A3',
+  type text NOT NULL CHECK (type IN ('income', 'expense')),
+  sort_order integer DEFAULT 100, -- Start at 100 to come after defaults
+  is_deleted boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+
+-- RLS: Users manage their own categories
+ALTER TABLE categories_custom ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "users manage own categories"
+  ON categories_custom FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- STEP 4: Create transactions table
+-- ============================================================
+
+CREATE TABLE transactions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  category_id uuid, -- References either categories_default or categories_custom (no FK constraint)
+  category_source text NOT NULL DEFAULT 'default' CHECK (category_source IN ('default', 'custom')),
+  type text NOT NULL CHECK (type IN ('income', 'expense')),
+  amount bigint NOT NULL,
   note text,
-  date date not null default current_date,
+  date date NOT NULL DEFAULT current_date,
   receipt_url text,
-  is_deleted boolean default false,
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
+  is_deleted boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
--- 3. Auto-update updated_at on transactions
-create or replace function update_updated_at()
-returns trigger as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$ language plpgsql;
+-- Auto-update updated_at trigger
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-create trigger transactions_updated_at
-  before update on transactions
-  for each row execute function update_updated_at();
+CREATE TRIGGER transactions_updated_at
+  BEFORE UPDATE ON transactions
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- 4. Enable RLS
-alter table categories enable row level security;
-alter table transactions enable row level security;
+-- RLS: Users manage their own transactions
+ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS policies
-create policy "users manage own categories"
-  on categories for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+CREATE POLICY "users manage own transactions"
+  ON transactions FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
-create policy "users manage own transactions"
-  on transactions for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+-- ============================================================
+-- STEP 5: Storage bucket for receipts
+-- ============================================================
 
--- 6. Storage bucket for receipts
-insert into storage.buckets (id, name, public)
-  values ('receipts', 'receipts', false);
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('receipts', 'receipts', false)
+ON CONFLICT (id) DO NOTHING;
 
-create policy "users manage own receipts"
-  on storage.objects for all
-  using (bucket_id = 'receipts' and auth.uid()::text = (storage.foldername(name))[1])
-  with check (bucket_id = 'receipts' and auth.uid()::text = (storage.foldername(name))[1]);
+-- Drop existing policy if exists and recreate
+DROP POLICY IF EXISTS "users manage own receipts" ON storage.objects;
 
--- 7. Seed default categories
--- IMPORTANT: Replace the user_id below with your actual Supabase user UUID
--- Get it from: Authentication → Users → your test user → copy the UUID
-do $$
-declare
-  dev_user_id uuid := '00000000-0000-0000-0000-000000000001'; -- REPLACE THIS
-begin
-  insert into categories (user_id, name, icon, color, type, sort_order) values
-    (dev_user_id, 'Makan',     '🍜', '#F87171', 'expense', 1),
-    (dev_user_id, 'Transport', '🚗', '#FB923C', 'expense', 2),
-    (dev_user_id, 'Belanja',   '🛍️', '#A78BFA', 'expense', 3),
-    (dev_user_id, 'Tagihan',   '💡', '#60A5FA', 'expense', 4),
-    (dev_user_id, 'Kesehatan', '💊', '#34D399', 'expense', 5),
-    (dev_user_id, 'Hiburan',   '🎮', '#F472B6', 'expense', 6),
-    (dev_user_id, 'Lainnya',   '📦', '#A3A3A3', 'expense', 7),
-    (dev_user_id, 'Gaji',      '💰', '#4ADE80', 'income',  1),
-    (dev_user_id, 'Freelance', '💻', '#4ADE80', 'income',  2),
-    (dev_user_id, 'Lainnya',   '📦', '#A3A3A3', 'income',  3);
-end $$;
+CREATE POLICY "users manage own receipts"
+  ON storage.objects FOR ALL
+  USING (bucket_id = 'receipts' AND auth.uid()::text = (storage.foldername(name))[1])
+  WITH CHECK (bucket_id = 'receipts' AND auth.uid()::text = (storage.foldername(name))[1]);

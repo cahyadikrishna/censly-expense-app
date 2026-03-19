@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@lib/supabase";
 import type {
+  CategoryDefault,
   Category,
+  CategoryItem,
   TransactionType,
   CreateCategoryInput,
   UpdateCategoryInput,
@@ -9,55 +11,140 @@ import type {
 
 // Query keys
 export const categoryKeys = {
-  all: ["categories"] as const,
+  all: ["categories_custom"] as const,
   lists: () => [...categoryKeys.all, "list"] as const,
   list: (filters: { type?: TransactionType }) =>
     [...categoryKeys.lists(), filters] as const,
+  defaults: () => [...categoryKeys.all, "defaults"] as const,
+  custom: () => [...categoryKeys.all, "custom"] as const,
   details: () => [...categoryKeys.all, "detail"] as const,
   detail: (id: string) => [...categoryKeys.details(), id] as const,
 };
 
-// Fetch all categories (non-deleted)
-async function fetchCategories(type?: TransactionType): Promise<Category[]> {
-  let query = supabase
-    .from("categories")
+// Fetch all categories (defaults + user custom, combined)
+async function fetchCategories(type?: TransactionType): Promise<CategoryItem[]> {
+  // Fetch default categories
+  let defaultQuery = supabase
+    .from("categories_default")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (type) {
+    defaultQuery = defaultQuery.eq("type", type);
+  }
+
+  // Fetch user custom categories
+  let customQuery = supabase
+    .from("categories_custom")
     .select("*")
     .eq("is_deleted", false)
     .order("sort_order", { ascending: true });
 
   if (type) {
-    query = query.eq("type", type);
+    customQuery = customQuery.eq("type", type);
   }
 
-  const { data, error } = await query;
+  // Execute both queries in parallel
+  const [defaultResult, customResult] = await Promise.all([
+    defaultQuery,
+    customQuery,
+  ]);
 
-  if (error) {
-    console.error("[useCategories] fetchCategories error:", error);
-    throw error;
+  if (defaultResult.error) {
+    console.error("[useCategories] fetchDefaultCategories error:", defaultResult.error);
+    throw defaultResult.error;
   }
 
-  console.log("[useCategories] fetchCategories result:", data);
-  return data as Category[];
+  if (customResult.error) {
+    console.error("[useCategories] fetchCustomCategories error:", customResult.error);
+    throw customResult.error; 
+  }
+
+  // Transform and combine results with source indicator
+  const defaults: CategoryItem[] = (defaultResult.data ?? []).map(
+    (c: CategoryDefault) => ({
+      id: c.id,
+      name: c.name,
+      icon: c.icon,
+      color: c.color,
+      type: c.type as TransactionType,
+      sort_order: c.sort_order,
+      source: "default" as const,
+      created_at: c.created_at,
+    })
+  );
+
+  const custom: CategoryItem[] = (customResult.data ?? []).map(
+    (c: Category) => ({
+      id: c.id,
+      name: c.name,
+      icon: c.icon,
+      color: c.color,
+      type: c.type as TransactionType,
+      sort_order: c.sort_order,
+      source: "custom" as const,
+      created_at: c.created_at,
+    })
+  );
+
+  // Defaults first (sort_order 1-99), then custom (sort_order 100+)
+  const combined = [...defaults, ...custom];
+  
+  console.log("[useCategories] fetchCategories result:", combined);
+  return combined;
 }
 
-// Fetch single category
-async function fetchCategory(id: string): Promise<Category> {
-  const { data, error } = await supabase
-    .from("categories")
+// Fetch single category by ID (checks both tables)
+async function fetchCategory(id: string): Promise<CategoryItem | null> {
+  // Try default categories first
+  const { data: defaultData, error: defaultError } = await supabase
+    .from("categories_default")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error) {
-    console.error("[useCategories] fetchCategory error:", error);
-    throw error;
+  if (defaultData) {
+    const item: CategoryItem = {
+      id: defaultData.id,
+      name: defaultData.name,
+      icon: defaultData.icon,
+      color: defaultData.color,
+      type: defaultData.type as TransactionType,
+      sort_order: defaultData.sort_order,
+      source: "default",
+      created_at: defaultData.created_at,
+    };
+    console.log("[useCategories] fetchCategory (default) result:", item);
+    return item;
   }
 
-  console.log("[useCategories] fetchCategory result:", data);
-  return data as Category;
+  // If not found in defaults, try custom categories
+  const { data: customData, error: customError } = await supabase
+    .from("categories_custom")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (customData) {
+    const item: CategoryItem = {
+      id: customData.id,
+      name: customData.name,
+      icon: customData.icon,
+      color: customData.color,
+      type: customData.type as TransactionType,
+      sort_order: customData.sort_order,
+      source: "custom",
+      created_at: customData.created_at,
+    };
+    console.log("[useCategories] fetchCategory (custom) result:", item);
+    return item;
+  }
+
+  console.error("[useCategories] fetchCategory not found:", id);
+  return null;
 }
 
-// Create category
+// Create custom category (only in categories table)
 async function createCategory(input: CreateCategoryInput): Promise<Category> {
   const {
     data: { user },
@@ -66,7 +153,7 @@ async function createCategory(input: CreateCategoryInput): Promise<Category> {
   if (!user) throw new Error("Not authenticated");
 
   const { data, error } = await supabase
-    .from("categories")
+    .from("categories_custom")
     .insert({
       ...input,
       user_id: user.id,
@@ -84,13 +171,13 @@ async function createCategory(input: CreateCategoryInput): Promise<Category> {
   return data as Category;
 }
 
-// Update category
+// Update custom category (only in categories_custom table)
 async function updateCategory({
   id,
   ...input
 }: UpdateCategoryInput & { id: string }): Promise<Category> {
   const { data, error } = await supabase
-    .from("categories")
+    .from("categories_custom")
     .update(input)
     .eq("id", id)
     .select()
@@ -105,10 +192,10 @@ async function updateCategory({
   return data as Category;
 }
 
-// Soft delete category
+// Soft delete custom category (only in categories_custom table)
 async function deleteCategory(id: string): Promise<void> {
   const { error } = await supabase
-    .from("categories")
+    .from("categories_custom")
     .update({ is_deleted: true })
     .eq("id", id);
 
@@ -123,7 +210,7 @@ async function deleteCategory(id: string): Promise<void> {
 // ============ HOOKS ============
 
 /**
- * Fetch all non-deleted categories, optionally filtered by type
+ * Fetch all categories (defaults + user custom), optionally filtered by type
  */
 export function useCategories(type?: TransactionType) {
   return useQuery({
@@ -133,7 +220,7 @@ export function useCategories(type?: TransactionType) {
 }
 
 /**
- * Fetch a single category by ID
+ * Fetch a single category by ID (checks both tables)
  */
 export function useCategory(id: string) {
   return useQuery({
@@ -144,7 +231,7 @@ export function useCategory(id: string) {
 }
 
 /**
- * Create a new category
+ * Create a new custom category
  */
 export function useCreateCategory() {
   const queryClient = useQueryClient();
@@ -162,7 +249,7 @@ export function useCreateCategory() {
 }
 
 /**
- * Update an existing category
+ * Update an existing custom category
  */
 export function useUpdateCategory() {
   const queryClient = useQueryClient();
@@ -183,7 +270,8 @@ export function useUpdateCategory() {
 }
 
 /**
- * Soft delete a category (sets is_deleted = true)
+ * Soft delete a custom category (sets is_deleted = true)
+ * Note: Default categories cannot be deleted
  */
 export function useDeleteCategory() {
   const queryClient = useQueryClient();

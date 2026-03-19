@@ -18,7 +18,8 @@
         "NSCameraUsageDescription": "Censly needs camera access to scan receipts.",
         "NSPhotoLibraryUsageDescription": "Censly needs photo library access to attach receipt images.",
         "NSFaceIDUsageDescription": "Censly uses Face ID to secure your financial data."
-      }
+      },
+      "bundleIdentifier": "com.anonymous.censly"
     },
     "android": {
       "adaptiveIcon": {

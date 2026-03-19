@@ -5,8 +5,9 @@ import type {
   TransactionFilters,
   CreateTransactionInput,
   UpdateTransactionInput,
+  CategoryItem,
+  TransactionType,
 } from "../types";
-import { categoryKeys } from "./useCategories";
 
 // Query keys
 export const transactionKeys = {
@@ -20,13 +21,53 @@ export const transactionKeys = {
   detail: (id: string) => [...transactionKeys.details(), id] as const,
 };
 
+// Helper: Fetch all categories from both tables and create a lookup map
+async function fetchCategoryMap(): Promise<Map<string, CategoryItem>> {
+  const [defaultResult, customResult] = await Promise.all([
+    supabase.from("categories_default").select("*"),
+    supabase.from("categories_custom").select("*").eq("is_deleted", false),
+  ]);
+
+  const map = new Map<string, CategoryItem>();
+
+  // Add default categories
+  (defaultResult.data ?? []).forEach((c) => {
+    map.set(c.id, {
+      id: c.id,
+      name: c.name,
+      icon: c.icon,
+      color: c.color,
+      type: c.type as TransactionType,
+      sort_order: c.sort_order,
+      source: "default",
+      created_at: c.created_at,
+    });
+  });
+
+  // Add custom categories
+  (customResult.data ?? []).forEach((c) => {
+    map.set(c.id, {
+      id: c.id,
+      name: c.name,
+      icon: c.icon,
+      color: c.color,
+      type: c.type as TransactionType,
+      sort_order: c.sort_order,
+      source: "custom",
+      created_at: c.created_at,
+    });
+  });
+
+  return map;
+}
+
 // Fetch transactions with optional filters
 async function fetchTransactions(
   filters: TransactionFilters = {}
 ): Promise<Transaction[]> {
   let query = supabase
     .from("transactions")
-    .select("*, category:categories(*)")
+    .select("*")
     .eq("is_deleted", false)
     .order("date", { ascending: false })
     .order("created_at", { ascending: false });
@@ -54,8 +95,18 @@ async function fetchTransactions(
     throw error;
   }
 
-  console.log("[useTransactions] fetchTransactions result:", data);
-  return data as Transaction[];
+  // Fetch category map and attach category to each transaction
+  const categoryMap = await fetchCategoryMap();
+
+  const transactions: Transaction[] = (data ?? []).map((t) => ({
+    ...t,
+    type: t.type as TransactionType,
+    category_source: t.category_source as "default" | "custom",
+    category: t.category_id ? categoryMap.get(t.category_id) : undefined,
+  }));
+
+  console.log("[useTransactions] fetchTransactions result:", transactions);
+  return transactions;
 }
 
 // Fetch transactions for a specific month
@@ -69,7 +120,7 @@ async function fetchMonthlyTransactions(
 
   const { data, error } = await supabase
     .from("transactions")
-    .select("*, category:categories(*)")
+    .select("*")
     .eq("is_deleted", false)
     .gte("date", startDate)
     .lte("date", endDate)
@@ -81,15 +132,25 @@ async function fetchMonthlyTransactions(
     throw error;
   }
 
-  console.log("[useTransactions] fetchMonthlyTransactions result:", data);
-  return data as Transaction[];
+  // Fetch category map and attach category to each transaction
+  const categoryMap = await fetchCategoryMap();
+
+  const transactions: Transaction[] = (data ?? []).map((t) => ({
+    ...t,
+    type: t.type as TransactionType,
+    category_source: t.category_source as "default" | "custom",
+    category: t.category_id ? categoryMap.get(t.category_id) : undefined,
+  }));
+
+  console.log("[useTransactions] fetchMonthlyTransactions result:", transactions);
+  return transactions;
 }
 
 // Fetch single transaction
 async function fetchTransaction(id: string): Promise<Transaction> {
   const { data, error } = await supabase
     .from("transactions")
-    .select("*, category:categories(*)")
+    .select("*")
     .eq("id", id)
     .single();
 
@@ -98,8 +159,18 @@ async function fetchTransaction(id: string): Promise<Transaction> {
     throw error;
   }
 
-  console.log("[useTransactions] fetchTransaction result:", data);
-  return data as Transaction;
+  // Fetch category map and attach category
+  const categoryMap = await fetchCategoryMap();
+
+  const transaction: Transaction = {
+    ...data,
+    type: data.type as TransactionType,
+    category_source: data.category_source as "default" | "custom",
+    category: data.category_id ? categoryMap.get(data.category_id) : undefined,
+  };
+
+  console.log("[useTransactions] fetchTransaction result:", transaction);
+  return transaction;
 }
 
 // Create transaction
@@ -115,11 +186,17 @@ async function createTransaction(
   const { data, error } = await supabase
     .from("transactions")
     .insert({
-      ...input,
       user_id: user.id,
+      category_id: input.category_id,
+      category_source: input.category_source,
+      type: input.type,
+      amount: input.amount,
+      date: input.date,
+      note: input.note ?? null,
+      receipt_url: input.receipt_url ?? null,
       is_deleted: false,
     })
-    .select("*, category:categories(*)")
+    .select()
     .single();
 
   if (error) {
@@ -127,8 +204,18 @@ async function createTransaction(
     throw error;
   }
 
-  console.log("[useTransactions] createTransaction result:", data);
-  return data as Transaction;
+  // Fetch category map and attach category
+  const categoryMap = await fetchCategoryMap();
+
+  const transaction: Transaction = {
+    ...data,
+    type: data.type as TransactionType,
+    category_source: data.category_source as "default" | "custom",
+    category: data.category_id ? categoryMap.get(data.category_id) : undefined,
+  };
+
+  console.log("[useTransactions] createTransaction result:", transaction);
+  return transaction;
 }
 
 // Update transaction
@@ -140,7 +227,7 @@ async function updateTransaction({
     .from("transactions")
     .update(input)
     .eq("id", id)
-    .select("*, category:categories(*)")
+    .select()
     .single();
 
   if (error) {
@@ -148,8 +235,18 @@ async function updateTransaction({
     throw error;
   }
 
-  console.log("[useTransactions] updateTransaction result:", data);
-  return data as Transaction;
+  // Fetch category map and attach category
+  const categoryMap = await fetchCategoryMap();
+
+  const transaction: Transaction = {
+    ...data,
+    type: data.type as TransactionType,
+    category_source: data.category_source as "default" | "custom",
+    category: data.category_id ? categoryMap.get(data.category_id) : undefined,
+  };
+
+  console.log("[useTransactions] updateTransaction result:", transaction);
+  return transaction;
 }
 
 // Soft delete transaction
