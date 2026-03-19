@@ -54,9 +54,9 @@ export default function Transactions() {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return "Hari ini";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return "Kemarin";
     } else {
       return date.toLocaleDateString("id-ID", {
         weekday: "long",
@@ -122,45 +122,45 @@ export default function Transactions() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 px-5 pt-4">
-        <Text className="text-gray-900 text-2xl font-bold mb-4">Transactions</Text>
+        <Text className="text-gray-900 text-2xl font-bold mb-4">Transaksi</Text>
 
         <View className="flex-row mb-4">
           {filter === "all" ? (
             <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">All</Text>
+              <Text className="font-medium text-white">Semua</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               className="px-4 py-2 rounded-lg mr-2 bg-surface"
               onPress={() => setFilter("all")}
             >
-              <Text className="font-medium text-gray-500">All</Text>
+              <Text className="font-medium text-gray-500">Semua</Text>
             </TouchableOpacity>
           )}
 
           {filter === "expense" ? (
             <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">Expense</Text>
+              <Text className="font-medium text-white">Pengeluaran</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               className="px-4 py-2 rounded-lg mr-2 bg-surface"
               onPress={() => setFilter("expense")}
             >
-              <Text className="font-medium text-gray-500">Expense</Text>
+              <Text className="font-medium text-gray-500">Pengeluaran</Text>
             </TouchableOpacity>
           )}
 
           {filter === "income" ? (
             <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">Income</Text>
+              <Text className="font-medium text-white">Pemasukan</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               className="px-4 py-2 rounded-lg mr-2 bg-surface"
               onPress={() => setFilter("income")}
             >
-              <Text className="font-medium text-gray-500">Income</Text>
+              <Text className="font-medium text-gray-500">Pemasukan</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -169,7 +169,7 @@ export default function Transactions() {
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator color="#22C55E" size="large" />
             <Text className="text-gray-500 text-sm mt-4">
-              Loading transactions...
+              Loading transaksi nih~
             </Text>
           </View>
         ) : sections.length > 0 ? (
@@ -190,18 +190,18 @@ export default function Transactions() {
           <View className="flex-1 items-center justify-center">
             <Ionicons name="receipt-outline" size={64} color="#9CA3AF" />
             <Text className="text-gray-500 text-base mt-4">
-              No transactions yet
+              Belum ada transaksi nih~
             </Text>
             <Text className="text-gray-400 text-sm mt-1">
               {filter !== "all"
-                ? `No ${filter} transactions found`
-                : "Your transactions will appear here"}
+                ? `Gada transaksi ${filter} sih`
+                : "Transaksi kamu bakalan muncul di sini~"}
             </Text>
             <TouchableOpacity
               className="mt-6 bg-accent-green px-6 py-3 rounded-xl"
               onPress={() => router.push("/transaction/add")}
             >
-              <Text className="text-white font-semibold">Add Transaction</Text>
+              <Text className="text-white font-semibold">Tambah Transaksi</Text>
             </TouchableOpacity>
           </View>
         )}

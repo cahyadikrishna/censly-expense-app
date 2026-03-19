@@ -21,7 +21,7 @@ export default function SignIn() {
 
   const handleEmailSignIn = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert("Error", "Please enter email and password");
+      Alert.alert("Error", "Isi email sama password dulu dong~");
       return;
     }
 
@@ -35,7 +35,7 @@ export default function SignIn() {
         });
 
         if (error) throw error;
-        Alert.alert("Success", "Account created! Please check your email to confirm.");
+        Alert.alert("Success", "Akun berhasil dibuat! Cek email kamu buat konfirmasi ya~");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -45,7 +45,7 @@ export default function SignIn() {
         if (error) throw error;
       }
     } catch (error: any) {
-      Alert.alert(isSignUp ? "Sign Up Error" : "Sign In Error", error.message);
+      Alert.alert(isSignUp ? "Error Daftar" : "Error Masuk", error.message);
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +65,7 @@ export default function SignIn() {
           <View className="items-center mb-10">
             <Text className="text-gray-900 text-4xl font-bold mb-2">Censly</Text>
             <Text className="text-gray-500 text-lg">
-              Track your expenses
+              Catat pengeluaranmu dong~
             </Text>
           </View>
 
@@ -74,7 +74,7 @@ export default function SignIn() {
             <Text className="text-gray-500 text-sm mb-2">Email</Text>
             <TextInput
               className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
-              placeholder="Enter your email"
+              placeholder="Ketik email kamu"
               placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={setEmail}
@@ -86,7 +86,7 @@ export default function SignIn() {
             <Text className="text-gray-500 text-sm mb-2">Password</Text>
             <TextInput
               className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
-              placeholder="Enter your password"
+              placeholder="Ketik password kamu"
               placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={setPassword}
@@ -104,7 +104,7 @@ export default function SignIn() {
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
                 <Text className="text-white font-semibold">
-                  {isSignUp ? "Sign Up" : "Sign In"}
+                  {isSignUp ? "Daftar" : "Masuk"}
                 </Text>
               )}
             </TouchableOpacity>
@@ -115,8 +115,8 @@ export default function SignIn() {
             >
               <Text className="text-accent-green text-sm">
                 {isSignUp
-                  ? "Already have an account? Sign In"
-                  : "Don't have an account? Sign Up"}
+                  ? "Udah punya akun? Masuk sini"
+                  : "Belum punya akun? Daftar dulu"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -124,7 +124,7 @@ export default function SignIn() {
           {/* Divider */}
           <View className="flex-row items-center mb-4">
             <View className="flex-1 h-px bg-gray-300" />
-            <Text className="text-gray-400 text-sm mx-4">or</Text>
+            <Text className="text-gray-400 text-sm mx-4">atau</Text>
             <View className="flex-1 h-px bg-gray-300" />
           </View>
 
@@ -135,7 +135,7 @@ export default function SignIn() {
             activeOpacity={1}
           >
             <Text className="text-gray-400 text-base font-semibold">
-              Continue with Google (Coming Soon)
+              Lanjut dengan Google (Coming Soon~)
             </Text>
           </TouchableOpacity>
         </ScrollView>

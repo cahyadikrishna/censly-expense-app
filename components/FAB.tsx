@@ -20,7 +20,7 @@ export default function FAB() {
 
   const menuItems: FABMenuItem[] = [
     {
-      label: "Add Transaction",
+      label: "Tambah Transaksi",
       icon: "add-circle-outline",
       onPress: () => {
         setIsOpen(false);

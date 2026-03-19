@@ -107,7 +107,7 @@ export default function AddTransaction() {
                   type === "expense" ? "text-white" : "text-gray-500"
                 }`}
               >
-                Expense
+                Pengeluaran
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -121,13 +121,13 @@ export default function AddTransaction() {
                   type === "income" ? "text-white" : "text-gray-500"
                 }`}
               >
-                Income
+                Pemasukan
               </Text>
             </TouchableOpacity>
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Amount</Text>
+            <Text className="text-gray-500 text-sm mb-2">Nominal</Text>
             <View className="flex-row items-center bg-surface rounded-xl px-4 py-3">
               <Text className="text-gray-900 text-2xl font-bold mr-2">Rp</Text>
               <TextInput
@@ -142,7 +142,7 @@ export default function AddTransaction() {
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Category</Text>
+            <Text className="text-gray-500 text-sm mb-2">Kategori</Text>
             {categoriesLoading ? (
               <View className="bg-surface rounded-xl p-4 items-center">
                 <ActivityIndicator color="#22C55E" />
@@ -164,13 +164,13 @@ export default function AddTransaction() {
               </ScrollView>
             ) : (
               <View className="bg-surface rounded-xl p-4 items-center">
-                <Text className="text-gray-500">No categories available</Text>
+                <Text className="text-gray-500">Gada kategori nih~</Text>
               </View>
             )}
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Date</Text>
+            <Text className="text-gray-500 text-sm mb-2">Tanggal</Text>
             <TouchableOpacity
               className="bg-surface rounded-xl px-4 py-4"
               onPress={() => setShowDatePicker(true)}
@@ -197,10 +197,10 @@ export default function AddTransaction() {
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Note (Optional)</Text>
+            <Text className="text-gray-500 text-sm mb-2">Catatan</Text>
             <TextInput
               className="bg-surface rounded-xl px-4 py-4 text-gray-900 text-base"
-              placeholder="Add a note..."
+              placeholder="Tambah catatan..."
               placeholderTextColor="#9CA3AF"
               value={note}
               onChangeText={setNote}
@@ -229,7 +229,7 @@ export default function AddTransaction() {
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text className="text-white text-center font-semibold text-lg">
-                Add Transaction
+                Tambah Transaksi
               </Text>
             )}
           </TouchableOpacity>

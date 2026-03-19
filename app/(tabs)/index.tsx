@@ -42,9 +42,9 @@ export default function Home() {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return "Today";
+      return "Hari ini";
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
+      return "Kemarin";
     } else {
       return date.toLocaleDateString("id-ID", {
         day: "numeric",
@@ -79,7 +79,7 @@ export default function Home() {
         </View>
         <View className="flex-1">
           <Text className="text-gray-900 font-medium">
-            {transaction.category?.name || "Uncategorized"}
+            {transaction.category?.name || "Tanpa Kategori"}
           </Text>
           <Text className="text-gray-400 text-xs mt-0.5">
             {formatDate(transaction.date)}
@@ -107,20 +107,20 @@ export default function Home() {
         <Text className="text-gray-900 text-2xl font-bold mb-6">Censly</Text>
 
         <View className="bg-surface rounded-2xl p-5 mb-6">
-          <Text className="text-gray-500 text-sm mb-1">Total Balance</Text>
+          <Text className="text-gray-500 text-sm mb-1">Saldo Total</Text>
           <Text className={`text-3xl font-bold ${balance >= 0 ? "text-gray-900" : "text-accent-red"}`}>
             {formatIDR(balance)}
           </Text>
 
           <View className="flex-row mt-4 gap-4">
             <View className="flex-1">
-              <Text className="text-gray-500 text-xs mb-1">Income</Text>
+              <Text className="text-gray-500 text-xs mb-1">Pemasukan</Text>
               <Text className="text-accent-green text-lg font-semibold">
                 {formatIDR(totalIncome)}
               </Text>
             </View>
             <View className="flex-1">
-              <Text className="text-gray-500 text-xs mb-1">Expenses</Text>
+              <Text className="text-gray-500 text-xs mb-1">Pengeluaran</Text>
               <Text className="text-accent-red text-lg font-semibold">
                 {formatIDR(totalExpense)}
               </Text>
@@ -130,11 +130,11 @@ export default function Home() {
 
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-gray-900 text-lg font-semibold">
-            Recent Transactions
+            Transaksi Terakhir~
           </Text>
           {transactions && transactions.length > 5 && (
             <TouchableOpacity onPress={() => router.push("/(tabs)/transactions")}>
-              <Text className="text-accent-green text-sm">See All</Text>
+              <Text className="text-accent-green text-sm">Lihat Semua</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -142,7 +142,7 @@ export default function Home() {
         {isLoading ? (
           <View className="bg-surface rounded-2xl p-5 items-center py-10">
             <ActivityIndicator color="#22C55E" />
-            <Text className="text-gray-500 text-sm mt-2">Loading...</Text>
+            <Text className="text-gray-500 text-sm mt-2">Tunggu bentar ya~</Text>
           </View>
         ) : recentTransactions.length > 0 ? (
           <View className="bg-surface rounded-2xl overflow-hidden">
@@ -153,10 +153,10 @@ export default function Home() {
         ) : (
           <View className="bg-surface rounded-2xl p-5 items-center py-10">
             <Text className="text-gray-500 text-base">
-              No transactions yet
+              Belum ada transaksi nih~
             </Text>
             <Text className="text-gray-400 text-sm mt-1">
-              Tap the + button to add one
+              Tekan tombol + buat nambahin ya~
             </Text>
           </View>
         )}

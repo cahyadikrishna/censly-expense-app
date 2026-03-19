@@ -20,14 +20,14 @@ export default function TransactionLayout() {
       <Stack.Screen
         name="add"
         options={{
-          title: "Add Transaction",
+          title: "Tambah Transaksi",
           presentation: "modal",
         }}
       />
       <Stack.Screen
         name="[id]"
         options={{
-          title: "Edit Transaction",
+          title: "Edit Transaksi",
           presentation: "modal",
         }}
       />

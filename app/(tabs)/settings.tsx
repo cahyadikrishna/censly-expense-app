@@ -8,7 +8,7 @@ export default function Settings() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 px-5 pt-4">
-        <Text className="text-white text-2xl font-bold mb-6">Settings</Text>
+        <Text className="text-white text-2xl font-bold mb-6">Pengaturan</Text>
 
         {user && (
           <View className="bg-surface rounded-2xl p-5 mb-4">
@@ -25,7 +25,7 @@ export default function Settings() {
           activeOpacity={0.8}
         >
           <Text className="text-accent-red text-base font-semibold">
-            Sign Out
+            Keluar
           </Text>
         </TouchableOpacity>
       </View>
