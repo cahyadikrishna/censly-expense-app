@@ -50,24 +50,24 @@ export default function Home() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView className="flex-1 px-5 pt-4">
-        <Text className="text-white text-2xl font-bold mb-6">Censly</Text>
+        <Text className="text-gray-900 text-2xl font-bold mb-6">Censly</Text>
 
         {/* Balance Card */}
         <View className="bg-surface rounded-2xl p-5 mb-6">
-          <Text className="text-gray-400 text-sm mb-1">Total Balance</Text>
-          <Text className={`text-3xl font-bold ${balance >= 0 ? "text-white" : "text-accent-red"}`}>
+          <Text className="text-gray-500 text-sm mb-1">Total Balance</Text>
+          <Text className={`text-3xl font-bold ${balance >= 0 ? "text-gray-900" : "text-accent-red"}`}>
             {formatIDR(balance)}
           </Text>
 
           <View className="flex-row mt-4 gap-4">
             <View className="flex-1">
-              <Text className="text-gray-400 text-xs mb-1">Income</Text>
+              <Text className="text-gray-500 text-xs mb-1">Income</Text>
               <Text className="text-accent-green text-lg font-semibold">
                 {formatIDR(totalIncome)}
               </Text>
             </View>
             <View className="flex-1">
-              <Text className="text-gray-400 text-xs mb-1">Expenses</Text>
+              <Text className="text-gray-500 text-xs mb-1">Expenses</Text>
               <Text className="text-accent-red text-lg font-semibold">
                 {formatIDR(totalExpense)}
               </Text>
@@ -77,7 +77,7 @@ export default function Home() {
 
         {/* Recent Transactions */}
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-white text-lg font-semibold">
+          <Text className="text-gray-900 text-lg font-semibold">
             Recent Transactions
           </Text>
           {transactions && transactions.length > 5 && (
@@ -89,8 +89,8 @@ export default function Home() {
 
         {isLoading ? (
           <View className="bg-surface rounded-2xl p-5 items-center py-10">
-            <ActivityIndicator color="#4ADE80" />
-            <Text className="text-gray-400 text-sm mt-2">Loading...</Text>
+            <ActivityIndicator color="#22C55E" />
+            <Text className="text-gray-500 text-sm mt-2">Loading...</Text>
           </View>
         ) : recentTransactions.length > 0 ? (
           <View className="bg-surface rounded-2xl overflow-hidden">
@@ -98,7 +98,7 @@ export default function Home() {
               <TouchableOpacity
                 key={transaction.id}
                 className={`flex-row items-center p-4 ${
-                  index < recentTransactions.length - 1 ? "border-b border-gray-800" : ""
+                  index < recentTransactions.length - 1 ? "border-b border-gray-200" : ""
                 }`}
                 onPress={() => handleTransactionPress(transaction)}
                 activeOpacity={0.7}
@@ -112,10 +112,10 @@ export default function Home() {
                   </Text>
                 </View>
                 <View className="flex-1">
-                  <Text className="text-white font-medium">
+                  <Text className="text-gray-900 font-medium">
                     {transaction.category?.name || "Uncategorized"}
                   </Text>
-                  <Text className="text-gray-500 text-xs mt-0.5">
+                  <Text className="text-gray-400 text-xs mt-0.5">
                     {formatDate(transaction.date)}
                     {transaction.note ? ` • ${transaction.note}` : ""}
                   </Text>
@@ -135,10 +135,10 @@ export default function Home() {
           </View>
         ) : (
           <View className="bg-surface rounded-2xl p-5 items-center py-10">
-            <Text className="text-gray-400 text-base">
+            <Text className="text-gray-500 text-base">
               No transactions yet
             </Text>
-            <Text className="text-gray-500 text-sm mt-1">
+            <Text className="text-gray-400 text-sm mt-1">
               Tap the + button to add one
             </Text>
           </View>

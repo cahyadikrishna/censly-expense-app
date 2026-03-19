@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Text,
   Pressable,
-  Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -33,7 +32,6 @@ export default function FAB() {
       icon: "scan-outline",
       onPress: () => {
         setIsOpen(false);
-        // TODO: Implement scan invoice
         console.log("Scan invoice - not implemented yet");
       },
     },
@@ -45,17 +43,14 @@ export default function FAB() {
 
   return (
     <>
-      {/* Backdrop */}
       {isOpen && (
         <Pressable
-          className="absolute inset-0 bg-black/50"
+          className="absolute inset-0 bg-black/20"
           onPress={() => setIsOpen(false)}
         />
       )}
 
-      {/* FAB Container */}
       <View className="absolute bottom-24 right-5">
-        {/* Menu Items */}
         {isOpen && (
           <View className="mb-3">
             {menuItems.map((item, index) => (
@@ -65,21 +60,20 @@ export default function FAB() {
                 onPress={item.onPress}
                 activeOpacity={0.8}
               >
-                <View className="bg-surface px-4 py-2 rounded-lg mr-3">
-                  <Text className="text-white font-medium">{item.label}</Text>
+                <View className="bg-white px-4 py-2 rounded-lg mr-3 shadow-sm">
+                  <Text className="text-gray-900 font-medium">{item.label}</Text>
                 </View>
-                <View className="w-12 h-12 rounded-full bg-surface items-center justify-center">
-                  <Ionicons name={item.icon} size={24} color="#4ADE80" />
+                <View className="w-12 h-12 rounded-full bg-white items-center justify-center shadow-md">
+                  <Ionicons name={item.icon} size={24} color="#22C55E" />
                 </View>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
-        {/* Main FAB Button */}
         <TouchableOpacity
-          className={`w-14 h-14 rounded-full items-center justify-center self-end ${
-            isOpen ? "bg-surface" : "bg-accent-green"
+          className={`w-14 h-14 rounded-full items-center justify-center self-end shadow-lg ${
+            isOpen ? "bg-gray-100" : "bg-accent-green"
           }`}
           onPress={toggleMenu}
           activeOpacity={0.8}
@@ -87,7 +81,7 @@ export default function FAB() {
           <Ionicons
             name={isOpen ? "close" : "add"}
             size={28}
-            color={isOpen ? "#F87171" : "#FFFFFF"}
+            color={isOpen ? "#EF4444" : "#FFFFFF"}
           />
         </TouchableOpacity>
       </View>

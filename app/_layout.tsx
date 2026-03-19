@@ -1,15 +1,28 @@
 import "../global.css";
 
 import { useEffect } from "react";
+import { Image, View, ActivityIndicator } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { supabase } from "@lib/supabase";
 import { useAuthStore } from "@stores/authStore";
-import { ActivityIndicator, View } from "react-native";
 
 const queryClient = new QueryClient();
+
+function SplashScreen() {
+  return (
+    <View className="flex-1 bg-background items-center justify-center">
+      <Image
+        source={require("../assets/icon.png")}
+        className="w-24 h-24 rounded-2xl mb-4"
+        resizeMode="contain"
+      />
+      <ActivityIndicator size="small" color="#22C55E" />
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const router = useRouter();
@@ -31,27 +44,20 @@ export default function RootLayout() {
     const inAuthGroup = segments[0] === "(auth)";
 
     if (session) {
-      // User is authenticated
       if (inAuthGroup) {
-        // Redirect from auth to tabs
         router.replace("/(tabs)");
       }
     } else {
-      // User is not authenticated
       if (!inAuthGroup) {
-        // Redirect to auth screen
         router.replace("/(auth)/sign-in");
       }
     }
   }, [session, segments]);
 
-  // Show loading screen while checking auth
   if (!session && segments[0] !== "(auth)") {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View className="flex-1 bg-background items-center justify-center">
-          <ActivityIndicator size="large" color="#4ADE80" />
-        </View>
+        <SplashScreen />
       </GestureHandlerRootView>
     );
   }
@@ -60,7 +66,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <Slot />
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

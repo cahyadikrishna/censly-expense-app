@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   SectionList,
@@ -20,17 +19,14 @@ export default function Transactions() {
   const router = useRouter();
   const [filter, setFilter] = useState<FilterType>("all");
 
-  // Fetch all transactions
-  const { data: transactions, isLoading, refetch } = useTransactions({});
+  const { data: transactions, isLoading } = useTransactions({});
 
-  // Filter transactions
   const filteredTransactions = useMemo(() => {
     if (!transactions) return [];
     if (filter === "all") return transactions;
     return transactions.filter((t) => t.type === filter);
   }, [transactions, filter]);
 
-  // Group transactions by date
   const sections = useMemo(() => {
     const groups: { [key: string]: Transaction[] } = {};
 
@@ -50,7 +46,6 @@ export default function Transactions() {
       }));
   }, [filteredTransactions]);
 
-  // Format section header date
   function formatSectionDate(dateStr: string): string {
     const date = new Date(dateStr);
     const today = new Date();
@@ -71,7 +66,6 @@ export default function Transactions() {
     }
   }
 
-  // Calculate daily total for section
   const getDailyTotal = (data: Transaction[]) => {
     const income = data
       .filter((t) => t.type === "income")
@@ -95,7 +89,7 @@ export default function Transactions() {
     >
       <Text
         className={`font-medium ${
-          filter === type ? "text-white" : "text-gray-400"
+          filter === type ? "text-white" : "text-gray-500"
         }`}
       >
         {label}
@@ -116,11 +110,11 @@ export default function Transactions() {
         <Text className="text-lg">{item.category?.icon || "📦"}</Text>
       </View>
       <View className="flex-1">
-        <Text className="text-white font-medium">
+        <Text className="text-gray-900 font-medium">
           {item.category?.name || "Uncategorized"}
         </Text>
         {item.note && (
-          <Text className="text-gray-500 text-xs mt-0.5" numberOfLines={1}>
+          <Text className="text-gray-400 text-xs mt-0.5" numberOfLines={1}>
             {item.note}
           </Text>
         )}
@@ -144,7 +138,7 @@ export default function Transactions() {
     const dailyTotal = getDailyTotal(section.data);
     return (
       <View className="flex-row items-center justify-between py-3 bg-background">
-        <Text className="text-gray-400 text-sm font-medium">
+        <Text className="text-gray-500 text-sm font-medium">
           {section.title}
         </Text>
         <Text
@@ -162,21 +156,18 @@ export default function Transactions() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 px-5 pt-4">
-        {/* Header */}
-        <Text className="text-white text-2xl font-bold mb-4">Transactions</Text>
+        <Text className="text-gray-900 text-2xl font-bold mb-4">Transactions</Text>
 
-        {/* Filter Tabs */}
         <View className="flex-row mb-4">
           {renderFilterButton("all", "All")}
           {renderFilterButton("expense", "Expense")}
           {renderFilterButton("income", "Income")}
         </View>
 
-        {/* Transaction List */}
         {isLoading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color="#4ADE80" size="large" />
-            <Text className="text-gray-400 text-sm mt-4">
+            <ActivityIndicator color="#22C55E" size="large" />
+            <Text className="text-gray-500 text-sm mt-4">
               Loading transactions...
             </Text>
           </View>
@@ -190,16 +181,16 @@ export default function Transactions() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
             ItemSeparatorComponent={() => (
-              <View className="h-px bg-gray-800/50" />
+              <View className="h-px bg-gray-200" />
             )}
           />
         ) : (
           <View className="flex-1 items-center justify-center">
-            <Ionicons name="receipt-outline" size={64} color="#6B7280" />
-            <Text className="text-gray-400 text-base mt-4">
+            <Ionicons name="receipt-outline" size={64} color="#9CA3AF" />
+            <Text className="text-gray-500 text-base mt-4">
               No transactions yet
             </Text>
-            <Text className="text-gray-500 text-sm mt-1">
+            <Text className="text-gray-400 text-sm mt-1">
               {filter !== "all"
                 ? `No ${filter} transactions found`
                 : "Your transactions will appear here"}

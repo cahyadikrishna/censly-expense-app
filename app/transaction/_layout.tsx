@@ -5,15 +5,15 @@ export default function TransactionLayout() {
     <Stack
       screenOptions={{
         headerStyle: {
-          backgroundColor: "#1A1A1A",
+          backgroundColor: "#FFFFFF",
         },
-        headerTintColor: "#FFFFFF",
+        headerTintColor: "#374151",
         headerTitleStyle: {
           fontWeight: "600",
         },
         headerShadowVisible: false,
         contentStyle: {
-          backgroundColor: "#0F0F0F",
+          backgroundColor: "#FFFFFF",
         },
       }}
     >

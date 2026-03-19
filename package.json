@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "^9.1.0",
@@ -17,12 +18,14 @@
     "dayjs": "^1.11.20",
     "expo": "~55.0.6",
     "expo-constants": "~55.0.9",
+    "expo-font": "^55.0.4",
     "expo-haptics": "~55.0.9",
     "expo-linking": "~55.0.8",
     "expo-random": "^14.0.1",
     "expo-router": "~55.0.7",
     "expo-secure-store": "~55.0.9",
     "expo-status-bar": "~55.0.4",
+    "noto-color-emoji": "^1.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.2",

@@ -29,14 +29,12 @@ export default function EditTransaction() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  // Fetch existing transaction
   const { data: transaction, isLoading: transactionLoading } = useTransaction(
     id || ""
   );
   const updateTransaction = useUpdateTransaction();
   const deleteTransaction = useDeleteTransaction();
 
-  // Form state
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<CategoryItem | null>(
@@ -48,10 +46,8 @@ export default function EditTransaction() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Fetch categories based on selected type
   const { data: categories, isLoading: categoriesLoading } = useCategories(type);
 
-  // Initialize form with transaction data
   useEffect(() => {
     if (transaction && !isInitialized) {
       setType(transaction.type);
@@ -62,7 +58,6 @@ export default function EditTransaction() {
     }
   }, [transaction, isInitialized]);
 
-  // Set selected category when categories load and transaction is available
   useEffect(() => {
     if (
       transaction &&
@@ -77,7 +72,6 @@ export default function EditTransaction() {
     }
   }, [transaction, categories, selectedCategory]);
 
-  // Reset selected category when type changes (only after initialization)
   const handleTypeChange = (newType: TransactionType) => {
     if (newType !== type) {
       setType(newType);
@@ -85,13 +79,11 @@ export default function EditTransaction() {
     }
   };
 
-  // Handle amount input with IDR formatting
   const handleAmountChange = (text: string) => {
     const formatted = formatIDRInput(text);
     setAmount(formatted);
   };
 
-  // Handle date change
   const handleDateChange = (
     event: DateTimePickerEvent,
     selectedDate?: Date
@@ -104,7 +96,6 @@ export default function EditTransaction() {
     }
   };
 
-  // Format date for display
   const formatDisplayDate = (d: Date) => {
     return d.toLocaleDateString("id-ID", {
       weekday: "short",
@@ -114,10 +105,8 @@ export default function EditTransaction() {
     });
   };
 
-  // Validate form
   const isValid = parseIDR(amount) > 0 && selectedCategory !== null;
 
-  // Handle form submission
   const handleSubmit = () => {
     if (!isValid || !selectedCategory || !id) return;
 
@@ -139,7 +128,6 @@ export default function EditTransaction() {
     );
   };
 
-  // Handle delete
   const handleDelete = () => {
     if (!id) return;
 
@@ -151,29 +139,27 @@ export default function EditTransaction() {
     });
   };
 
-  // Loading state
   if (transactionLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator color="#4ADE80" size="large" />
-        <Text className="text-gray-400 mt-4">Loading transaction...</Text>
+        <ActivityIndicator color="#22C55E" size="large" />
+        <Text className="text-gray-500 mt-4">Loading transaction...</Text>
       </SafeAreaView>
     );
   }
 
-  // Error state
   if (!transaction && !transactionLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-5">
-        <Ionicons name="alert-circle-outline" size={64} color="#F87171" />
-        <Text className="text-white text-lg font-semibold mt-4">
+        <Ionicons name="alert-circle-outline" size={64} color="#EF4444" />
+        <Text className="text-gray-900 text-lg font-semibold mt-4">
           Transaction not found
         </Text>
         <TouchableOpacity
           className="mt-6 bg-surface px-6 py-3 rounded-xl"
           onPress={() => router.back()}
         >
-          <Text className="text-white font-medium">Go Back</Text>
+          <Text className="text-gray-900 font-medium">Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -186,7 +172,6 @@ export default function EditTransaction() {
         className="flex-1"
       >
         <ScrollView className="flex-1 px-5" keyboardShouldPersistTaps="handled">
-          {/* Type Toggle */}
           <View className="flex-row bg-surface rounded-xl p-1 mt-4">
             <TouchableOpacity
               className={`flex-1 py-3 rounded-lg ${
@@ -196,7 +181,7 @@ export default function EditTransaction() {
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "expense" ? "text-white" : "text-gray-400"
+                  type === "expense" ? "text-white" : "text-gray-500"
                 }`}
               >
                 Expense
@@ -210,7 +195,7 @@ export default function EditTransaction() {
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "income" ? "text-white" : "text-gray-400"
+                  type === "income" ? "text-white" : "text-gray-500"
                 }`}
               >
                 Income
@@ -218,15 +203,14 @@ export default function EditTransaction() {
             </TouchableOpacity>
           </View>
 
-          {/* Amount Input */}
           <View className="mt-6">
-            <Text className="text-gray-400 text-sm mb-2">Amount</Text>
+            <Text className="text-gray-500 text-sm mb-2">Amount</Text>
             <View className="flex-row items-center bg-surface rounded-xl px-4 py-3">
-              <Text className="text-white text-2xl font-bold mr-2">Rp</Text>
+              <Text className="text-gray-900 text-2xl font-bold mr-2">Rp</Text>
               <TextInput
-                className="flex-1 text-white text-2xl font-bold"
+                className="flex-1 text-gray-900 text-2xl font-bold"
                 placeholder="0"
-                placeholderTextColor="#6B7280"
+                placeholderTextColor="#9CA3AF"
                 keyboardType="numeric"
                 value={amount}
                 onChangeText={handleAmountChange}
@@ -234,12 +218,11 @@ export default function EditTransaction() {
             </View>
           </View>
 
-          {/* Category Selection */}
           <View className="mt-6">
-            <Text className="text-gray-400 text-sm mb-2">Category</Text>
+            <Text className="text-gray-500 text-sm mb-2">Category</Text>
             {categoriesLoading ? (
               <View className="bg-surface rounded-xl p-4 items-center">
-                <ActivityIndicator color="#4ADE80" />
+                <ActivityIndicator color="#22C55E" />
               </View>
             ) : categories && categories.length > 0 ? (
               <ScrollView
@@ -250,10 +233,8 @@ export default function EditTransaction() {
                 {categories.map((category) => (
                   <TouchableOpacity
                     key={category.id}
-                    className={`mr-3 px-4 py-3 rounded-xl flex-row items-center ${
-                      selectedCategory?.id === category.id
-                        ? "bg-surface border-2"
-                        : "bg-surface"
+                    className={`mr-3 px-4 py-3 rounded-xl flex-row items-center bg-surface ${
+                      selectedCategory?.id === category.id ? "border-2" : ""
                     }`}
                     style={{
                       borderColor:
@@ -264,7 +245,7 @@ export default function EditTransaction() {
                     onPress={() => setSelectedCategory(category)}
                   >
                     <Text className="text-xl mr-2">{category.icon}</Text>
-                    <Text className="text-white font-medium">
+                    <Text className="text-gray-900 font-medium">
                       {category.name}
                     </Text>
                   </TouchableOpacity>
@@ -272,19 +253,18 @@ export default function EditTransaction() {
               </ScrollView>
             ) : (
               <View className="bg-surface rounded-xl p-4 items-center">
-                <Text className="text-gray-400">No categories available</Text>
+                <Text className="text-gray-500">No categories available</Text>
               </View>
             )}
           </View>
 
-          {/* Date Picker */}
           <View className="mt-6">
-            <Text className="text-gray-400 text-sm mb-2">Date</Text>
+            <Text className="text-gray-500 text-sm mb-2">Date</Text>
             <TouchableOpacity
               className="bg-surface rounded-xl px-4 py-4"
               onPress={() => setShowDatePicker(true)}
             >
-              <Text className="text-white text-base">
+              <Text className="text-gray-900 text-base">
                 {formatDisplayDate(date)}
               </Text>
             </TouchableOpacity>
@@ -300,19 +280,17 @@ export default function EditTransaction() {
                   display={Platform.OS === "ios" ? "spinner" : "default"}
                   onChange={handleDateChange}
                   maximumDate={new Date()}
-                  themeVariant="dark"
                 />
               </View>
             )}
           </View>
 
-          {/* Note Input */}
           <View className="mt-6">
-            <Text className="text-gray-400 text-sm mb-2">Note (Optional)</Text>
+            <Text className="text-gray-500 text-sm mb-2">Note (Optional)</Text>
             <TextInput
-              className="bg-surface rounded-xl px-4 py-4 text-white text-base"
+              className="bg-surface rounded-xl px-4 py-4 text-gray-900 text-base"
               placeholder="Add a note..."
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#9CA3AF"
               value={note}
               onChangeText={setNote}
               multiline
@@ -321,7 +299,6 @@ export default function EditTransaction() {
             />
           </View>
 
-          {/* Delete Button */}
           <TouchableOpacity
             className="mt-8 py-4 rounded-xl border border-accent-red"
             onPress={() => setShowDeleteModal(true)}
@@ -331,11 +308,9 @@ export default function EditTransaction() {
             </Text>
           </TouchableOpacity>
 
-          {/* Spacer for bottom button */}
           <View className="h-24" />
         </ScrollView>
 
-        {/* Submit Button */}
         <View className="absolute bottom-0 left-0 right-0 px-5 pb-5 bg-background">
           <TouchableOpacity
             className={`py-4 rounded-xl ${
@@ -343,7 +318,7 @@ export default function EditTransaction() {
                 ? type === "expense"
                   ? "bg-accent-red"
                   : "bg-accent-green"
-                : "bg-gray-700"
+                : "bg-gray-300"
             }`}
             onPress={handleSubmit}
             disabled={!isValid || updateTransaction.isPending}
@@ -359,36 +334,35 @@ export default function EditTransaction() {
         </View>
       </KeyboardAvoidingView>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         visible={showDeleteModal}
         transparent
         animationType="fade"
         onRequestClose={() => setShowDeleteModal(false)}
       >
-        <View className="flex-1 bg-black/70 items-center justify-center px-5">
-          <View className="bg-surface rounded-2xl p-6 w-full max-w-sm">
+        <View className="flex-1 bg-black/50 items-center justify-center px-5">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-sm">
             <View className="items-center mb-4">
-              <View className="w-16 h-16 rounded-full bg-accent-red/20 items-center justify-center mb-4">
-                <Ionicons name="trash-outline" size={32} color="#F87171" />
+              <View className="w-16 h-16 rounded-full bg-red-100 items-center justify-center mb-4">
+                <Ionicons name="trash-outline" size={32} color="#EF4444" />
               </View>
-              <Text className="text-white text-xl font-bold text-center">
+              <Text className="text-gray-900 text-xl font-bold text-center">
                 Delete Transaction?
               </Text>
-              <Text className="text-gray-400 text-center mt-2">
+              <Text className="text-gray-500 text-center mt-2">
                 This action cannot be undone. The transaction will be
                 permanently removed.
               </Text>
             </View>
 
             {transaction && (
-              <View className="bg-background rounded-xl p-4 mb-6">
+              <View className="bg-gray-50 rounded-xl p-4 mb-6">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <Text className="text-xl mr-2">
                       {transaction.category?.icon || "📦"}
                     </Text>
-                    <Text className="text-white font-medium">
+                    <Text className="text-gray-900 font-medium">
                       {transaction.category?.name || "Unknown"}
                     </Text>
                   </View>
@@ -408,11 +382,11 @@ export default function EditTransaction() {
 
             <View className="flex-row gap-3">
               <TouchableOpacity
-                className="flex-1 py-3 rounded-xl bg-gray-700"
+                className="flex-1 py-3 rounded-xl bg-gray-200"
                 onPress={() => setShowDeleteModal(false)}
                 disabled={deleteTransaction.isPending}
               >
-                <Text className="text-white text-center font-semibold">
+                <Text className="text-gray-700 text-center font-semibold">
                   Cancel
                 </Text>
               </TouchableOpacity>

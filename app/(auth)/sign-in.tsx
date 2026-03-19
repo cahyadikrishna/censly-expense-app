@@ -43,7 +43,6 @@ export default function SignIn() {
         });
 
         if (error) throw error;
-        // Success - onAuthStateChange will handle redirect
       }
     } catch (error: any) {
       Alert.alert(isSignUp ? "Sign Up Error" : "Sign In Error", error.message);
@@ -64,19 +63,19 @@ export default function SignIn() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="items-center mb-10">
-            <Text className="text-white text-4xl font-bold mb-2">Censly</Text>
-            <Text className="text-gray-400 text-lg">
+            <Text className="text-gray-900 text-4xl font-bold mb-2">Censly</Text>
+            <Text className="text-gray-500 text-lg">
               Track your expenses
             </Text>
           </View>
 
           {/* Email/Password Form */}
           <View className="bg-surface rounded-2xl p-5 mb-4">
-            <Text className="text-gray-400 text-sm mb-2">Email</Text>
+            <Text className="text-gray-500 text-sm mb-2">Email</Text>
             <TextInput
-              className="bg-background rounded-xl px-4 py-3 text-white mb-4"
+              className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
               placeholder="Enter your email"
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#9CA3AF"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -84,11 +83,11 @@ export default function SignIn() {
               autoCorrect={false}
             />
 
-            <Text className="text-gray-400 text-sm mb-2">Password</Text>
+            <Text className="text-gray-500 text-sm mb-2">Password</Text>
             <TextInput
-              className="bg-background rounded-xl px-4 py-3 text-white mb-4"
+              className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
               placeholder="Enter your password"
-              placeholderTextColor="#6B7280"
+              placeholderTextColor="#9CA3AF"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -96,7 +95,7 @@ export default function SignIn() {
 
             <TouchableOpacity
               className={`py-3 rounded-xl items-center ${
-                isLoading ? "bg-gray-600" : "bg-accent-green"
+                isLoading ? "bg-gray-300" : "bg-accent-green"
               }`}
               onPress={handleEmailSignIn}
               disabled={isLoading}
@@ -124,15 +123,15 @@ export default function SignIn() {
 
           {/* Divider */}
           <View className="flex-row items-center mb-4">
-            <View className="flex-1 h-px bg-gray-700" />
-            <Text className="text-gray-500 text-sm mx-4">or</Text>
-            <View className="flex-1 h-px bg-gray-700" />
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="text-gray-400 text-sm mx-4">or</Text>
+            <View className="flex-1 h-px bg-gray-300" />
           </View>
 
           {/* Google Sign-In (Disabled - Coming Soon) */}
           <TouchableOpacity
             disabled
-            className="rounded-2xl py-4 items-center bg-gray-600"
+            className="rounded-2xl py-4 items-center bg-gray-200"
             activeOpacity={1}
           >
             <Text className="text-gray-400 text-base font-semibold">
