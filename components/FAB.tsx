@@ -4,9 +4,11 @@ import {
   TouchableOpacity,
   Text,
   Pressable,
+  Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 
 interface FABMenuItem {
   label: string;
@@ -30,9 +32,64 @@ export default function FAB() {
     {
       label: "Scan Invoice",
       icon: "scan-outline",
-      onPress: () => {
+      onPress: async () => {
         setIsOpen(false);
 
+        Alert.alert("Scan Struk", "Pilih sumber struk:", [
+          {
+            text: "Ambil Foto",
+            onPress: async () => {
+              const { status } = await ImagePicker.requestCameraPermissionsAsync();
+              if (status !== "granted") {
+                Alert.alert(
+                  "Izin Diperlukan",
+                  "Censly butuh akses kamera buat scan struk."
+                );
+                return;
+              }
+
+              const result = await ImagePicker.launchCameraAsync({
+                mediaTypes: ["images"],
+                quality: 0.8,
+                allowsEditing: true,
+              });
+
+              if (!result.canceled && result.assets[0]) {
+                router.push({
+                  pathname: "/transaction/scan-result",
+                  params: { uri: result.assets[0].uri },
+                });
+              }
+            },
+          },
+          {
+            text: "Pilih dari Galeri",
+            onPress: async () => {
+              const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+              if (status !== "granted") {
+                Alert.alert(
+                  "Izin Diperlukan",
+                  "Censly butuh akses galeri buat pilih struk."
+                );
+                return;
+              }
+
+              const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ["images"],
+                quality: 0.8,
+                allowsEditing: true,
+              });
+
+              if (!result.canceled && result.assets[0]) {
+                router.push({
+                  pathname: "/transaction/scan-result",
+                  params: { uri: result.assets[0].uri },
+                });
+              }
+            },
+          },
+          { text: "Batal", style: "cancel" },
+        ]);
       },
     },
   ];

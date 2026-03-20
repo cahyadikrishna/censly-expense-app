@@ -31,6 +31,14 @@ export default function TransactionLayout() {
           presentation: "modal",
         }}
       />
+      <Stack.Screen
+        name="scan-result"
+        options={{
+          title: "Scan Struk",
+          presentation: "modal",
+          headerBackTitle: "Batal",
+        }}
+      />
     </Stack>
   );
 }
