@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { TouchableOpacity, ViewStyle, Easing } from "react-native";
 import Animated, {
   useSharedValue,
@@ -26,7 +26,7 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 export const Toggle = React.memo<ToggleProps>(
   ({ isActive, onToggle, disabled = false, className = "", style }) => {
     const progress = useSharedValue(isActive ? 1 : 0);
-    const shadowOpacity = useSharedValue(0);
+    const [isHovered, setIsHovered] = useState(false);
 
     const toggle = useCallback(() => {
       if (!disabled) {
@@ -41,13 +41,13 @@ export const Toggle = React.memo<ToggleProps>(
 
     const handlePressIn = useCallback(() => {
       if (!disabled) {
-        shadowOpacity.value = withTiming(1, { duration: 150 });
+        setIsHovered(true);
       }
     }, [disabled]);
 
     const handlePressOut = useCallback(() => {
       if (!disabled) {
-        shadowOpacity.value = withTiming(0, { duration: 200 });
+        setIsHovered(false);
       }
     }, [disabled]);
 
@@ -78,13 +78,6 @@ export const Toggle = React.memo<ToggleProps>(
       };
     });
 
-    const animatedContainerStyle = useAnimatedStyle(() => {
-      "worklet";
-      return {
-        shadowOpacity: shadowOpacity.value,
-      };
-    });
-
     return (
       <AnimatedTouchable
         onPress={toggle}
@@ -99,17 +92,15 @@ export const Toggle = React.memo<ToggleProps>(
           ${className}
         `}
         style={[
-          animatedContainerStyle,
           {
             width: TRACK_WIDTH,
             height: TRACK_HEIGHT,
             borderRadius: 14,
-          },
-          {
             shadowColor: "#000",
             shadowOffset: { width: 3, height: 3 },
-            shadowRadius: 1,
-            elevation: 4,
+            shadowOpacity: isHovered ? 1 : 0,
+            shadowRadius: 0,
+            elevation: isHovered ? 6 : 0,
           },
           animatedTrackStyle,
           style,

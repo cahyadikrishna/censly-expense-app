@@ -18,6 +18,9 @@ import { useCategories } from "@hooks/useCategories";
 import { useCreateTransaction } from "@hooks/useTransactions";
 import { formatIDRInput, parseIDR } from "@lib/currency";
 import CategoryChip from "@components/CategoryChip";
+import { Button } from "@components/ui/Button";
+import { InputField } from "@components/ui/InputField";
+import { Card } from "@components/ui/Card";
 import type { TransactionType, CategoryItem } from "../../types";
 
 export default function AddTransaction() {
@@ -89,36 +92,39 @@ export default function AddTransaction() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["bottom"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-5" keyboardShouldPersistTaps="handled">
-          <View className="flex-row bg-surface rounded-xl p-1 mt-4">
+        <ScrollView
+          className="flex-1 px-5"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="flex-row bg-white rounded-lg p-1 mt-4 border-2 border-black">
             <TouchableOpacity
-              className={`flex-1 py-3 rounded-lg ${
-                type === "expense" ? "bg-accent-red" : ""
+              className={`flex-1 py-3 rounded-md ${
+                type === "expense" ? "bg-black" : ""
               }`}
               onPress={() => handleTypeChange("expense")}
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "expense" ? "text-white" : "text-gray-500"
+                  type === "expense" ? "text-white" : "text-black"
                 }`}
               >
                 Pengeluaran
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 py-3 rounded-lg ${
-                type === "income" ? "bg-accent-green" : ""
+              className={`flex-1 py-3 rounded-md ${
+                type === "income" ? "bg-black" : ""
               }`}
               onPress={() => handleTypeChange("income")}
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "income" ? "text-white" : "text-gray-500"
+                  type === "income" ? "text-white" : "text-black"
                 }`}
               >
                 Pemasukan
@@ -127,26 +133,38 @@ export default function AddTransaction() {
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Nominal</Text>
-            <View className="flex-row items-center bg-surface rounded-xl px-4 py-3">
-              <Text className="text-gray-900 text-2xl font-bold mr-2">Rp</Text>
-              <TextInput
-                className="flex-1 text-gray-900 text-2xl font-bold"
-                placeholder="0"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="numeric"
-                value={amount}
-                onChangeText={handleAmountChange}
-              />
-            </View>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Nominal
+            </Text>
+            <Card variant="interactive" padding="md" className="px-4">
+              <View className="flex-row items-center">
+                <Text className="text-black text-2xl font-bold mr-2">
+                  Rp
+                </Text>
+                <View className="flex-1">
+                  <TextInput
+                    className="text-black text-2xl font-bold"
+                    placeholder="0"
+                    placeholderTextColor="#999999"
+                    keyboardType="numeric"
+                    value={amount}
+                    onChangeText={handleAmountChange}
+                  />
+                </View>
+              </View>
+            </Card>
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Kategori</Text>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Kategori
+            </Text>
             {categoriesLoading ? (
-              <View className="bg-surface rounded-xl p-4 items-center">
-                <ActivityIndicator color="#22C55E" />
-              </View>
+              <Card padding="md">
+                <View className="items-center py-4">
+                  <ActivityIndicator color="#000000" />
+                </View>
+              </Card>
             ) : categories && categories.length > 0 ? (
               <ScrollView
                 horizontal
@@ -163,76 +181,71 @@ export default function AddTransaction() {
                 ))}
               </ScrollView>
             ) : (
-              <View className="bg-surface rounded-xl p-4 items-center">
-                <Text className="text-gray-500">Gada kategori nih~</Text>
-              </View>
+              <Card padding="md">
+                <View className="items-center py-4">
+                  <Text className="text-gray">Gada kategori nih~</Text>
+                </View>
+              </Card>
             )}
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Tanggal</Text>
-            <TouchableOpacity
-              className="bg-surface rounded-xl px-4 py-4"
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text className="text-gray-900 text-base">
-                {formatDisplayDate(date)}
-              </Text>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Tanggal
+            </Text>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <Card variant="interactive" padding="md" className="px-4">
+                <Text className="text-black text-base">
+                  {formatDisplayDate(date)}
+                </Text>
+              </Card>
             </TouchableOpacity>
             {(showDatePicker || Platform.OS === "ios") && (
               <View
-                className={`${
-                  Platform.OS === "ios" ? "mt-2" : ""
-                } bg-surface rounded-xl overflow-hidden`}
+                className={`${Platform.OS === "ios" ? "mt-2" : ""}`}
               >
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={handleDateChange}
-                  maximumDate={new Date()}
-                />
+                <Card padding="md">
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={handleDateChange}
+                    maximumDate={new Date()}
+                  />
+                </Card>
               </View>
             )}
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Catatan</Text>
-            <TextInput
-              className="bg-surface rounded-xl px-4 py-4 text-gray-900 text-base"
-              placeholder="Tambah catatan..."
-              placeholderTextColor="#9CA3AF"
+            <Text className="text-sm font-semibold text-black mb-2">
+              Catatan
+            </Text>
+            <InputField
               value={note}
               onChangeText={setNote}
+              placeholder="Tambah catatan..."
               multiline
               numberOfLines={3}
-              textAlignVertical="top"
             />
           </View>
 
           <View className="h-24" />
         </ScrollView>
 
-        <View className="absolute bottom-0 left-0 right-0 px-5 pb-5 bg-background">
-          <TouchableOpacity
-            className={`py-4 rounded-xl ${
-              isValid && !createTransaction.isPending
-                ? type === "expense"
-                  ? "bg-accent-red"
-                  : "bg-accent-green"
-                : "bg-gray-300"
-            }`}
+        <View className="absolute bottom-0 left-0 right-0 px-5 pb-5 bg-white">
+          <Button
+            label="Tambah Transaksi"
             onPress={handleSubmit}
             disabled={!isValid || createTransaction.isPending}
-          >
-            {createTransaction.isPending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-white text-center font-semibold text-lg">
-                Tambah Transaksi
-              </Text>
-            )}
-          </TouchableOpacity>
+            variant={isValid && !createTransaction.isPending ? "primary" : "secondary"}
+            size="lg"
+          />
+          {createTransaction.isPending && (
+            <View className="items-center mt-4">
+              <ActivityIndicator color="#000000" />
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

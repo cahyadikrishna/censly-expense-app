@@ -69,13 +69,11 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 export const Badge = React.memo<BadgeProps>(
   ({ label, variant = "default", size = "md", icon, className = "", style }) => {
     const scale = useSharedValue(1);
-    const shadowOpacity = useSharedValue(0);
 
     const animatedStyle = useAnimatedStyle(() => {
       "worklet";
       return {
         transform: [{ scale: scale.value }],
-        shadowOpacity: shadowOpacity.value,
       };
     });
 
@@ -87,13 +85,11 @@ export const Badge = React.memo<BadgeProps>(
     const handlePressOut = () => {
       "worklet";
       scale.value = withSpring(1.05, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = withSpring(1, { damping: 15, stiffness: 400 });
     };
 
     const handlePressCancel = () => {
       "worklet";
       scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = withSpring(0, { damping: 15, stiffness: 400 });
     };
 
     const { container, border, textColor } = variantStyles[variant];
@@ -116,16 +112,7 @@ export const Badge = React.memo<BadgeProps>(
           rounded-full
           ${className}
         `}
-        style={[
-          animatedStyle,
-          {
-            shadowColor: "#000",
-            shadowOffset: { width: 3, height: 3 },
-            shadowRadius: 1,
-            elevation: 4,
-          },
-          style,
-        ]}
+        style={[animatedStyle, style]}
       >
         {icon}
         <Text

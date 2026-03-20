@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   TouchableOpacity,
   Text,
   Pressable,
   Alert,
+  StyleSheet,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
 
 interface FABMenuItem {
   label: string;
@@ -16,9 +22,14 @@ interface FABMenuItem {
   onPress: () => void;
 }
 
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+
 export default function FAB() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  const menuScale = useSharedValue(1);
+  const mainScale = useSharedValue(1);
 
   const menuItems: FABMenuItem[] = [
     {
@@ -65,7 +76,8 @@ export default function FAB() {
           {
             text: "Pilih dari Galeri",
             onPress: async () => {
-              const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+              const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
               if (status !== "granted") {
                 Alert.alert(
                   "Izin Diperlukan",
@@ -94,9 +106,37 @@ export default function FAB() {
     },
   ];
 
-  const toggleMenu = () => {
+  const toggleMenu = useCallback(() => {
     setIsOpen(!isOpen);
-  };
+    if (!isOpen) {
+      menuScale.value = withSpring(1, { damping: 15, stiffness: 400 });
+      mainScale.value = withSpring(1, { damping: 15, stiffness: 400 });
+    }
+  }, [isOpen]);
+
+  const handleMainPressIn = useCallback(() => {
+    mainScale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
+  }, []);
+
+  const handleMainPressOut = useCallback(() => {
+    if (!isOpen) {
+      mainScale.value = withSpring(1.02, { damping: 15, stiffness: 400 });
+    }
+  }, [isOpen]);
+
+  const animatedMainStyle = useAnimatedStyle(() => {
+    "worklet";
+    return {
+      transform: [{ scale: mainScale.value }],
+    };
+  });
+
+  const animatedMenuStyle = useAnimatedStyle(() => {
+    "worklet";
+    return {
+      transform: [{ scale: menuScale.value }],
+    };
+  });
 
   return (
     <>
@@ -109,7 +149,7 @@ export default function FAB() {
 
       <View className="absolute bottom-24 right-5">
         {isOpen && (
-          <View className="mb-3">
+          <Animated.View className="mb-3" style={animatedMenuStyle}>
             {menuItems.map((item, index) => (
               <TouchableOpacity
                 key={index}
@@ -117,31 +157,63 @@ export default function FAB() {
                 onPress={item.onPress}
                 activeOpacity={0.8}
               >
-                <View className="bg-white px-4 py-2 rounded-lg mr-3 shadow-sm">
-                  <Text className="text-gray-900 font-medium">{item.label}</Text>
+                <View className="bg-white px-4 py-2 rounded-lg mr-3 border-2 border-black">
+                  <Text className="text-black font-medium">{item.label}</Text>
                 </View>
-                <View className="w-12 h-12 rounded-full bg-white items-center justify-center shadow-md">
-                  <Ionicons name={item.icon} size={24} color="#22C55E" />
+                <View style={styles.menuItemShadow}>
+                  <Ionicons name={item.icon} size={24} color="#000000" />
                 </View>
               </TouchableOpacity>
             ))}
-          </View>
+          </Animated.View>
         )}
 
-        <TouchableOpacity
-          className={`w-14 h-14 rounded-full items-center justify-center self-end shadow-lg ${
-            isOpen ? "bg-gray-100" : "bg-accent-green"
-          }`}
+        <AnimatedTouchable
+          className={`
+            w-14 h-14 rounded-full items-center justify-center
+            border-[3px] border-black
+            ${isOpen ? "bg-white" : "bg-black"}
+          `}
           onPress={toggleMenu}
-          activeOpacity={0.8}
+          onPressIn={handleMainPressIn}
+          onPressOut={handleMainPressOut}
+          activeOpacity={1}
+          style={[
+            animatedMainStyle,
+            {
+              shadowColor: "#000",
+              shadowOffset: { width: 4, height: 4 },
+              shadowOpacity: 1,
+              shadowRadius: 0,
+              elevation: 8,
+            },
+          ]}
         >
           <Ionicons
             name={isOpen ? "close" : "add"}
             size={28}
-            color={isOpen ? "#EF4444" : "#FFFFFF"}
+            color={isOpen ? "#000000" : "#FFFFFF"}
           />
-        </TouchableOpacity>
+        </AnimatedTouchable>
       </View>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  menuItemShadow: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2,
+    borderColor: "#000000",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 6,
+  },
+});

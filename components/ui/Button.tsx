@@ -64,31 +64,26 @@ export const Button = React.memo<ButtonProps>(
     style,
   }) => {
     const scale = useSharedValue(1);
-    const shadowOpacity = useSharedValue(0);
 
     const animatedContainerStyle = useAnimatedStyle(() => {
       "worklet";
       return {
         transform: [{ scale: scale.value }],
-        shadowOpacity: shadowOpacity.value,
       };
     });
 
     const handlePressIn = useCallback(() => {
       "worklet";
       scale.value = withSpring(0.95, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = withSpring(0, { damping: 15, stiffness: 400 });
     }, []);
 
     const handlePressOut = useCallback(() => {
       "worklet";
       scale.value = withSpring(1.02, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = withSpring(1, { damping: 15, stiffness: 400 });
     }, []);
 
     const handlePress = useCallback(() => {
       scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = withSpring(1, { damping: 15, stiffness: 400 });
       onPress();
     }, [onPress]);
 
@@ -112,7 +107,8 @@ export const Button = React.memo<ButtonProps>(
           !disabled && {
             shadowColor: "#000",
             shadowOffset: { width: 4, height: 4 },
-            shadowRadius: 2,
+            shadowOpacity: 1,
+            shadowRadius: 0,
             elevation: 8,
           },
           style,

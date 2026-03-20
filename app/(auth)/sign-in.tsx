@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -12,6 +11,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "@lib/supabase";
+import { Button } from "@components/ui/Button";
+import { InputField } from "@components/ui/InputField";
+import { Card } from "@components/ui/Card";
+import { Divider } from "@components/ui/Divider";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -35,7 +38,10 @@ export default function SignIn() {
         });
 
         if (error) throw error;
-        Alert.alert("Success", "Akun berhasil dibuat! Cek email kamu buat konfirmasi ya~");
+        Alert.alert(
+          "Success",
+          "Akun berhasil dibuat! Cek email kamu buat konfirmasi ya~"
+        );
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -45,96 +51,95 @@ export default function SignIn() {
         if (error) throw error;
       }
     } catch (error: any) {
-      Alert.alert(isSignUp ? "Error Daftar" : "Error Masuk", error.message);
+      Alert.alert(
+        isSignUp ? "Error Daftar" : "Error Masuk",
+        error.message
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-white">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView
           className="flex-1 px-6"
-          contentContainerStyle={{ justifyContent: "center", flexGrow: 1 }}
+          contentContainerStyle={{
+            justifyContent: "center",
+            flexGrow: 1,
+            paddingVertical: 24,
+          }}
           keyboardShouldPersistTaps="handled"
         >
           <View className="items-center mb-10">
-            <Text className="text-gray-900 text-4xl font-bold mb-2">Censly</Text>
-            <Text className="text-gray-500 text-lg">
-              Catat pengeluaranmu dong~
+            <Text className="text-black text-4xl font-bold mb-2 tracking-tight">
+              Censly
             </Text>
+            <Text className="text-gray text-md">Jangan males, catet pengeluaran pke AI~</Text>
           </View>
 
-          {/* Email/Password Form */}
-          <View className="bg-surface rounded-2xl p-5 mb-4">
-            <Text className="text-gray-500 text-sm mb-2">Email</Text>
-            <TextInput
-              className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
-              placeholder="Ketik email kamu"
-              placeholderTextColor="#9CA3AF"
+          <Card variant="elevated" padding="lg" className="mb-6">
+            <Text className="text-sm font-semibold text-black mb-2">Email</Text>
+            <InputField
               value={email}
               onChangeText={setEmail}
+              placeholder="Ketik email kamu"
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              className="mb-4"
             />
 
-            <Text className="text-gray-500 text-sm mb-2">Password</Text>
-            <TextInput
-              className="bg-white rounded-xl px-4 py-3 text-gray-900 mb-4 border border-gray-200"
-              placeholder="Ketik password kamu"
-              placeholderTextColor="#9CA3AF"
+            <Text className="text-sm font-semibold text-black mb-2">
+              Password
+            </Text>
+            <InputField
               value={password}
               onChangeText={setPassword}
+              placeholder="Ketik password kamu"
               secureTextEntry
+              className="mb-4"
             />
 
-            <TouchableOpacity
-              className={`py-3 rounded-xl items-center ${
-                isLoading ? "bg-gray-300" : "bg-accent-green"
-              }`}
+            <Button
+              label={isSignUp ? "Daftar" : "Masuk"}
               onPress={handleEmailSignIn}
               disabled={isLoading}
-            >
-              {isLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text className="text-white font-semibold">
-                  {isSignUp ? "Daftar" : "Masuk"}
-                </Text>
-              )}
-            </TouchableOpacity>
+              variant="primary"
+              size="lg"
+              className="mt-2"
+            />
+
+            {isLoading && (
+              <View className="items-center mt-4">
+                <ActivityIndicator color="#000000" />
+              </View>
+            )}
 
             <TouchableOpacity
-              className="mt-3 py-2 items-center"
+              className="mt-4 py-2 items-center"
               onPress={() => setIsSignUp(!isSignUp)}
             >
-              <Text className="text-accent-green text-sm">
+              <Text className="text-black text-sm font-medium">
                 {isSignUp
                   ? "Udah punya akun? Masuk sini"
                   : "Belum punya akun? Daftar dulu"}
               </Text>
             </TouchableOpacity>
-          </View>
+          </Card>
 
-          {/* Divider */}
-          <View className="flex-row items-center mb-4">
-            <View className="flex-1 h-px bg-gray-300" />
-            <Text className="text-gray-400 text-sm mx-4">atau</Text>
-            <View className="flex-1 h-px bg-gray-300" />
-          </View>
+          <Divider className="my-6" />
 
-          {/* Google Sign-In (Disabled - Coming Soon) */}
           <TouchableOpacity
             disabled
-            className="rounded-2xl py-4 items-center bg-gray-200"
+            className="rounded-lg py-4 items-center bg-white border-2 border-black opacity-50"
             activeOpacity={1}
           >
-            <Text className="text-gray-400 text-base font-semibold">
+            <Text className="text-black text-base font-semibold">
               Lanjut dengan Google (Coming Soon~)
             </Text>
           </TouchableOpacity>

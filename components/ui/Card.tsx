@@ -7,7 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 type CardVariant = "default" | "elevated" | "interactive";
-type CardPadding = "sm" | "md" | "lg";
+type CardPadding = "none" | "sm" | "md" | "lg";
 
 interface CardProps {
   children: ReactNode;
@@ -19,6 +19,7 @@ interface CardProps {
 }
 
 const paddingStyles: Record<CardPadding, string> = {
+  none: "",
   sm: "p-4",
   md: "p-5",
   lg: "p-6",
@@ -36,13 +37,11 @@ export const Card = React.memo<CardProps>(
     style,
   }) => {
     const scale = useSharedValue(1);
-    const shadowOpacity = useSharedValue(variant === "elevated" ? 1 : 0);
 
     const animatedStyle = useAnimatedStyle(() => {
       "worklet";
       return {
         transform: [{ scale: scale.value }],
-        shadowOpacity: shadowOpacity.value,
       };
     });
 
@@ -57,7 +56,6 @@ export const Card = React.memo<CardProps>(
       "worklet";
       if (variant === "interactive") {
         scale.value = withSpring(1.01, { damping: 15, stiffness: 400 });
-        shadowOpacity.value = withSpring(1, { damping: 15, stiffness: 400 });
       } else if (variant === "elevated") {
         scale.value = withSpring(1.01, { damping: 15, stiffness: 400 });
       }
@@ -65,11 +63,10 @@ export const Card = React.memo<CardProps>(
 
     const handlePress = useCallback(() => {
       scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-      shadowOpacity.value = variant === "elevated" ? 1 : 0;
       onPress?.();
-    }, [variant, onPress]);
+    }, [onPress]);
 
-    const isInteractive = variant === "interactive" || variant === "elevated";
+    const hasShadow = variant === "elevated" || variant === "interactive";
 
     const content = (
       <Animated.View
@@ -82,10 +79,11 @@ export const Card = React.memo<CardProps>(
         `}
         style={[
           animatedStyle,
-          {
+          hasShadow && {
             shadowColor: "#000",
             shadowOffset: { width: 4, height: 4 },
-            shadowRadius: 2,
+            shadowOpacity: 1,
+            shadowRadius: 0,
             elevation: 8,
           },
           style,

@@ -8,7 +8,6 @@ import {
   Platform,
   ActivityIndicator,
   KeyboardAvoidingView,
-  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -21,6 +20,9 @@ import { useCreateTransaction } from "@hooks/useTransactions";
 import { useScanReceipt } from "@hooks/useScanReceipt";
 import { formatIDR, formatIDRInput, parseIDR } from "@lib/currency";
 import CategoryChip from "@components/CategoryChip";
+import { Button } from "@components/ui/Button";
+import { InputField } from "@components/ui/InputField";
+import { Card } from "@components/ui/Card";
 import type { TransactionType, CategoryItem } from "../../types";
 import type { ScanResult } from "@hooks/useScanReceipt";
 
@@ -69,7 +71,7 @@ export default function ScanResult() {
 
           setIsScanning(false);
         },
-        onError: (error) => {
+        onError: () => {
           setScanError("Gagal memindai struk. Coba lagi ya~");
           setIsScanning(false);
         },
@@ -153,98 +155,114 @@ export default function ScanResult() {
 
   if (isScanning) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center">
-        <ActivityIndicator size="large" color="#22C55E" />
-        <Text className="text-gray-500 mt-4">Menganalisis struk...</Text>
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color="#000000" />
+        <Text className="text-gray mt-4">Menganalisis struk...</Text>
       </SafeAreaView>
     );
   }
 
   if (scanError) {
     return (
-      <SafeAreaView className="flex-1 bg-background items-center justify-center px-5">
-        <Ionicons name="alert-circle-outline" size={64} color="#EF4444" />
-        <Text className="text-gray-900 text-lg font-semibold mt-4">
-          {scanError}
-        </Text>
-        <TouchableOpacity
-          className="mt-6 bg-accent-green px-8 py-3 rounded-xl"
-          onPress={handleRescan}
-        >
-          <Text className="text-white font-semibold">Coba Lagi</Text>
-        </TouchableOpacity>
+      <SafeAreaView className="flex-1 bg-white items-center justify-center px-5">
+        <Card variant="elevated" padding="lg" className="items-center">
+          <Ionicons name="alert-circle-outline" size={64} color="#000000" />
+          <Text className="text-black text-lg font-semibold mt-4">
+            {scanError}
+          </Text>
+          <Button
+            label="Coba Lagi"
+            onPress={handleRescan}
+            variant="primary"
+            size="md"
+            className="mt-6"
+          />
+        </Card>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={["bottom"]}>
+    <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-5" keyboardShouldPersistTaps="handled">
-          <View className="mt-4 mb-2">
-            <Text className="text-gray-900 text-xl font-bold">Hasil Scan</Text>
-            <Text className="text-gray-500 text-sm mt-1">
+        <ScrollView
+          className="flex-1 px-5"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="mt-4 mb-6">
+            <Text className="text-black text-xl font-bold tracking-tight">
+              Hasil Scan
+            </Text>
+            <Text className="text-gray text-sm mt-1">
               Periksa dan edit data sebelum disimpan
             </Text>
           </View>
 
           {scanData?.store_name && (
-            <View className="bg-surface rounded-xl p-4 mt-2">
-              <Text className="text-gray-500 text-xs mb-1">Toko</Text>
-              <Text className="text-gray-900 font-semibold">
+            <Card variant="interactive" padding="md" className="mt-2">
+              <Text className="text-xs font-semibold text-gray mb-1">Toko</Text>
+              <Text className="text-black font-semibold">
                 {scanData.store_name}
               </Text>
-            </View>
+            </Card>
           )}
 
           {scanData?.items && scanData.items.length > 0 && (
-            <View className="bg-surface rounded-xl p-4 mt-3">
-              <Text className="text-gray-500 text-xs mb-2">Item ({scanData.items.length})</Text>
+            <Card variant="interactive" padding="md" className="mt-3">
+              <Text className="text-xs font-semibold text-gray mb-2">
+                Item ({scanData.items.length})
+              </Text>
               {scanData.items.slice(0, 5).map((item, index) => (
-                <View key={index} className="flex-row justify-between py-1.5">
-                  <Text className="text-gray-700 text-sm flex-1" numberOfLines={1}>
+                <View
+                  key={index}
+                  className="flex-row justify-between py-1.5"
+                >
+                  <Text
+                    className="text-black text-sm flex-1"
+                    numberOfLines={1}
+                  >
                     {item.name}
                   </Text>
-                  <Text className="text-gray-500 text-sm ml-2">
+                  <Text className="text-gray text-sm ml-2">
                     {formatIDR(item.price)}
                   </Text>
                 </View>
               ))}
               {scanData.items.length > 5 && (
-                <Text className="text-gray-400 text-xs mt-1">
+                <Text className="text-light-gray text-xs mt-1">
                   +{scanData.items.length - 5} item lainnya
                 </Text>
               )}
-            </View>
+            </Card>
           )}
 
-          <View className="flex-row bg-surface rounded-xl p-1 mt-4">
+          <View className="flex-row bg-white rounded-lg p-1 mt-4 border-2 border-black">
             <TouchableOpacity
-              className={`flex-1 py-3 rounded-lg ${
-                type === "expense" ? "bg-accent-red" : ""
+              className={`flex-1 py-3 rounded-md ${
+                type === "expense" ? "bg-black" : ""
               }`}
               onPress={() => handleTypeChange("expense")}
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "expense" ? "text-white" : "text-gray-500"
+                  type === "expense" ? "text-white" : "text-black"
                 }`}
               >
                 Pengeluaran
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 py-3 rounded-lg ${
-                type === "income" ? "bg-accent-green" : ""
+              className={`flex-1 py-3 rounded-md ${
+                type === "income" ? "bg-black" : ""
               }`}
               onPress={() => handleTypeChange("income")}
             >
               <Text
                 className={`text-center font-semibold ${
-                  type === "income" ? "text-white" : "text-gray-500"
+                  type === "income" ? "text-white" : "text-black"
                 }`}
               >
                 Pemasukan
@@ -253,26 +271,34 @@ export default function ScanResult() {
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Nominal</Text>
-            <View className="flex-row items-center bg-surface rounded-xl px-4 py-3">
-              <Text className="text-gray-900 text-2xl font-bold mr-2">Rp</Text>
-              <TextInput
-                className="flex-1 text-gray-900 text-2xl font-bold"
-                placeholder="0"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="numeric"
-                value={amount}
-                onChangeText={handleAmountChange}
-              />
-            </View>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Nominal
+            </Text>
+            <Card variant="interactive" padding="md" className="px-4">
+              <View className="flex-row items-center">
+                <Text className="text-black text-2xl font-bold mr-2">Rp</Text>
+                <TextInput
+                  className="flex-1 text-black text-2xl font-bold"
+                  placeholder="0"
+                  placeholderTextColor="#999999"
+                  keyboardType="numeric"
+                  value={amount}
+                  onChangeText={handleAmountChange}
+                />
+              </View>
+            </Card>
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Kategori</Text>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Kategori
+            </Text>
             {categoriesLoading ? (
-              <View className="bg-surface rounded-xl p-4 items-center">
-                <ActivityIndicator color="#22C55E" />
-              </View>
+              <Card padding="md">
+                <View className="items-center py-4">
+                  <ActivityIndicator color="#000000" />
+                </View>
+              </Card>
             ) : categories && categories.length > 0 ? (
               <ScrollView
                 horizontal
@@ -289,59 +315,59 @@ export default function ScanResult() {
                 ))}
               </ScrollView>
             ) : (
-              <View className="bg-surface rounded-xl p-4 items-center">
-                <Text className="text-gray-500">Gada kategori nih~</Text>
-              </View>
+              <Card padding="md">
+                <View className="items-center py-4">
+                  <Text className="text-gray">Gada kategori nih~</Text>
+                </View>
+              </Card>
             )}
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Tanggal</Text>
-            <TouchableOpacity
-              className="bg-surface rounded-xl px-4 py-4"
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text className="text-gray-900 text-base">
-                {formatDisplayDate(date)}
-              </Text>
+            <Text className="text-sm font-semibold text-black mb-2">
+              Tanggal
+            </Text>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <Card variant="interactive" padding="md" className="px-4">
+                <Text className="text-black text-base">
+                  {formatDisplayDate(date)}
+                </Text>
+              </Card>
             </TouchableOpacity>
             {(showDatePicker || Platform.OS === "ios") && (
-              <View
-                className={`${
-                  Platform.OS === "ios" ? "mt-2" : ""
-                } bg-surface rounded-xl overflow-hidden`}
-              >
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={handleDateChange}
-                  maximumDate={new Date()}
-                />
+              <View className={`${Platform.OS === "ios" ? "mt-2" : ""}`}>
+                <Card padding="md">
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
+                    onChange={handleDateChange}
+                    maximumDate={new Date()}
+                  />
+                </Card>
               </View>
             )}
           </View>
 
           <View className="mt-6">
-            <Text className="text-gray-500 text-sm mb-2">Catatan</Text>
-            <TextInput
-              className="bg-surface rounded-xl px-4 py-4 text-gray-900 text-base"
-              placeholder="Tambah catatan..."
-              placeholderTextColor="#9CA3AF"
+            <Text className="text-sm font-semibold text-black mb-2">
+              Catatan
+            </Text>
+            <InputField
               value={note}
               onChangeText={setNote}
+              placeholder="Tambah catatan..."
               multiline
               numberOfLines={3}
-              textAlignVertical="top"
             />
           </View>
 
           <TouchableOpacity
-            className="mt-4 flex-row items-center justify-center"
+            className="mt-4 flex-row items-center justify-center py-2"
             onPress={handleRescan}
           >
-            <Ionicons name="camera-outline" size={18} color="#22C55E" />
-            <Text className="text-accent-green text-sm font-medium ml-1.5">
+            <Ionicons name="camera-outline" size={18} color="#000000" />
+            <Text className="text-black text-sm font-medium ml-1.5">
               Scan Ulang
             </Text>
           </TouchableOpacity>
@@ -349,26 +375,21 @@ export default function ScanResult() {
           <View className="h-24" />
         </ScrollView>
 
-        <View className="absolute bottom-0 left-0 right-0 px-5 pb-5 bg-background">
-          <TouchableOpacity
-            className={`py-4 rounded-xl ${
-              isValid && !createTransaction.isPending
-                ? type === "expense"
-                  ? "bg-accent-red"
-                  : "bg-accent-green"
-                : "bg-gray-300"
-            }`}
+        <View className="absolute bottom-0 left-0 right-0 px-5 pb-5 bg-white">
+          <Button
+            label="Simpan Transaksi"
             onPress={handleSubmit}
             disabled={!isValid || createTransaction.isPending}
-          >
-            {createTransaction.isPending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-white text-center font-semibold text-lg">
-                Simpan Transaksi
-              </Text>
-            )}
-          </TouchableOpacity>
+            variant={
+              isValid && !createTransaction.isPending ? "primary" : "secondary"
+            }
+            size="lg"
+          />
+          {createTransaction.isPending && (
+            <View className="items-center mt-4">
+              <ActivityIndicator color="#000000" />
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

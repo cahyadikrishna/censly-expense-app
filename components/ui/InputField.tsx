@@ -1,11 +1,5 @@
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { TextInput, TextInputProps, View, ViewStyle } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolateColor,
-} from "react-native-reanimated";
 
 type InputVariant = "default" | "error" | "success";
 
@@ -27,8 +21,6 @@ const variantColors: Record<InputVariant, string> = {
   success: "#4CAF50",
 };
 
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
-
 export const InputField = React.memo<InputFieldProps>(
   ({
     value,
@@ -42,53 +34,24 @@ export const InputField = React.memo<InputFieldProps>(
     style,
     ...props
   }) => {
-    const borderColor = useSharedValue(variantColors[variant]);
-    const ringOpacity = useSharedValue(0);
-    const bgOpacity = useSharedValue(0);
-    const shadowOpacity = useSharedValue(0);
+    const [isFocused, setIsFocused] = useState(false);
 
-    const animatedContainerStyle = useAnimatedStyle(() => {
-      "worklet";
-      return {
-        borderColor: borderColor.value,
-        backgroundColor:
-          bgOpacity.value === 0 ? "#FFFFFF" : "#F9F9F9",
-        shadowOpacity: shadowOpacity.value,
-      };
-    });
+    const handleFocus = useCallback((e: any) => {
+      setIsFocused(true);
+      props.onFocus?.(e);
+    }, [props]);
 
-    const animatedRingStyle = useAnimatedStyle(() => {
-      "worklet";
-      return {
-        opacity: ringOpacity.value,
-      };
-    });
+    const handleBlur = useCallback((e: any) => {
+      setIsFocused(false);
+      props.onBlur?.(e);
+    }, [props]);
 
-    const handleFocus = useCallback(() => {
-      "worklet";
-      borderColor.value = withTiming(variantColors[variant], {
-        duration: 150,
-      });
-      ringOpacity.value = withTiming(1, { duration: 150 });
-      shadowOpacity.value = withTiming(1, { duration: 200 });
-      bgOpacity.value = withTiming(1, { duration: 200 });
-    }, [variant]);
-
-    const handleBlur = useCallback(() => {
-      "worklet";
-      borderColor.value = withTiming(variantColors[variant], {
-        duration: 150,
-      });
-      ringOpacity.value = withTiming(0, { duration: 150 });
-      shadowOpacity.value = withTiming(0, { duration: 200 });
-      bgOpacity.value = withTiming(0, { duration: 200 });
-    }, [variant]);
-
-    const borderColorHex = variantColors[variant];
+    const borderColor = variantColors[variant];
+    const showFocusRing = isFocused;
 
     return (
       <View className="w-full">
-        <Animated.View
+        <View
           className={`
             relative
             w-full
@@ -96,32 +59,33 @@ export const InputField = React.memo<InputFieldProps>(
             ${className}
           `}
           style={[
-            animatedContainerStyle,
             {
               borderWidth: 2,
               borderRadius: 8,
+              borderColor: borderColor,
+              backgroundColor: isFocused ? "#F9F9F9" : "#FFFFFF",
             },
-            !disabled && {
+            isFocused && {
               shadowColor: "#000",
               shadowOffset: { width: 4, height: 4 },
-              shadowRadius: 2,
+              shadowOpacity: 1,
+              shadowRadius: 0,
               elevation: 8,
             },
             style,
           ]}
         >
-          <Animated.View
-            className="absolute -inset-1 rounded-lg"
-            style={[
-              animatedRingStyle,
-              {
+          {showFocusRing && (
+            <View
+              className="absolute -inset-1 rounded-lg"
+              style={{
                 borderWidth: 2,
-                borderColor: borderColorHex,
-              },
-            ]}
-          />
+                borderColor: borderColor,
+              }}
+            />
+          )}
 
-          <AnimatedTextInput
+          <TextInput
             placeholder={placeholder}
             value={value}
             onChangeText={onChangeText}
@@ -136,7 +100,6 @@ export const InputField = React.memo<InputFieldProps>(
               w-full
               px-4 py-3
               text-base text-black
-              ${multiline ? `min-h-[${numberOfLines * 24}]` : ""}
             `}
             style={[
               multiline && {
@@ -147,7 +110,7 @@ export const InputField = React.memo<InputFieldProps>(
             ]}
             {...props}
           />
-        </Animated.View>
+        </View>
       </View>
     );
   }
