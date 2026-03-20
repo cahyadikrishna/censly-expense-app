@@ -141,16 +141,15 @@ export default function AddTransaction() {
                 <Text className="text-black text-2xl font-bold mr-2">
                   Rp
                 </Text>
-                <View className="flex-1">
-                  <TextInput
-                    className="text-black text-2xl font-bold"
-                    placeholder="0"
-                    placeholderTextColor="#999999"
-                    keyboardType="numeric"
-                    value={amount}
-                    onChangeText={handleAmountChange}
-                  />
-                </View>
+                <TextInput
+                  className="flex-1 text-black text-2xl font-bold h-12"
+                  placeholder="0"
+                  placeholderTextColor="#999999"
+                  keyboardType="numeric"
+                  value={amount}
+                  onChangeText={handleAmountChange}
+                  style={{ height: 48 }}
+                />
               </View>
             </Card>
           </View>
