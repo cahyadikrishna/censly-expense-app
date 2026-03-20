@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback } from "react";
-import { Text, TouchableOpacity, ViewStyle } from "react-native";
+import { Text, TouchableOpacity, ViewStyle, ActivityIndicator } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,6 +13,7 @@ interface ButtonProps {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  loading?: boolean;
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: ReactNode;
@@ -57,6 +58,7 @@ export const Button = React.memo<ButtonProps>(
     label,
     onPress,
     disabled = false,
+    loading = false,
     variant = "primary",
     size = "md",
     icon,
@@ -90,21 +92,21 @@ export const Button = React.memo<ButtonProps>(
     return (
       <AnimatedTouchable
         onPress={handlePress}
-        onPressIn={disabled ? undefined : handlePressIn}
-        onPressOut={disabled ? undefined : handlePressOut}
-        disabled={disabled}
+        onPressIn={disabled || loading ? undefined : handlePressIn}
+        onPressOut={disabled || loading ? undefined : handlePressOut}
+        disabled={disabled || loading}
         activeOpacity={1}
         className={`
           ${variantStyles[variant].container}
           ${sizeStyles[size].container}
           flex-row items-center justify-center gap-2
           border-[3px] rounded-lg
-          ${disabled ? "opacity-50" : ""}
+          ${disabled || loading ? "opacity-50" : ""}
           ${className}
         `}
         style={[
           animatedContainerStyle,
-          !disabled && {
+          !disabled && !loading && {
             shadowColor: "#000",
             shadowOffset: { width: 4, height: 4 },
             shadowOpacity: 1,
@@ -114,16 +116,25 @@ export const Button = React.memo<ButtonProps>(
           style,
         ]}
       >
-        {icon}
-        <Text
-          className={`
-            ${variantStyles[variant].text}
-            ${sizeStyles[size].text}
-            font-bold tracking-tight
-          `}
-        >
-          {label}
-        </Text>
+        {loading ? (
+          <ActivityIndicator
+            color={variantStyles[variant].text.replace("text-", "") === "white" ? "#FFFFFF" : "#000000"}
+            size="small"
+          />
+        ) : (
+          <>
+            {icon}
+            <Text
+              className={`
+                ${variantStyles[variant].text}
+                ${sizeStyles[size].text}
+                font-bold tracking-tight
+              `}
+            >
+              {label}
+            </Text>
+          </>
+        )}
       </AnimatedTouchable>
     );
   }

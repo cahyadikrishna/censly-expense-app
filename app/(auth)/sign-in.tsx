@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   Alert,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -108,17 +107,11 @@ export default function SignIn() {
             <Button
               label={isSignUp ? "Daftar" : "Masuk"}
               onPress={handleEmailSignIn}
-              disabled={isLoading}
+              loading={isLoading}
               variant="primary"
               size="lg"
               className="mt-2"
             />
-
-            {isLoading && (
-              <View className="items-center mt-4">
-                <ActivityIndicator color="#000000" />
-              </View>
-            )}
 
             <TouchableOpacity
               className="mt-4 py-2 items-center"

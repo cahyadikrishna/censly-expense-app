@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Platform,
-  ActivityIndicator,
   KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -161,7 +160,7 @@ export default function AddTransaction() {
             {categoriesLoading ? (
               <Card padding="md">
                 <View className="items-center py-4">
-                  <ActivityIndicator color="#000000" />
+                  <Text className="text-gray">Loading...</Text>
                 </View>
               </Card>
             ) : categories && categories.length > 0 ? (
@@ -236,15 +235,11 @@ export default function AddTransaction() {
           <Button
             label="Tambah Transaksi"
             onPress={handleSubmit}
-            disabled={!isValid || createTransaction.isPending}
-            variant={isValid && !createTransaction.isPending ? "primary" : "secondary"}
+            loading={createTransaction.isPending}
+            disabled={!isValid}
+            variant={isValid ? "primary" : "secondary"}
             size="lg"
           />
-          {createTransaction.isPending && (
-            <View className="items-center mt-4">
-              <ActivityIndicator color="#000000" />
-            </View>
-          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
