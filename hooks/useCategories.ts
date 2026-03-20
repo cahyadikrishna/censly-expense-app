@@ -90,7 +90,6 @@ async function fetchCategories(type?: TransactionType): Promise<CategoryItem[]> 
   // Defaults first (sort_order 1-99), then custom (sort_order 100+)
   const combined = [...defaults, ...custom];
   
-  console.log("[useCategories] fetchCategories result:", combined);
   return combined;
 }
 
@@ -114,7 +113,6 @@ async function fetchCategory(id: string): Promise<CategoryItem | null> {
       source: "default",
       created_at: defaultData.created_at,
     };
-    console.log("[useCategories] fetchCategory (default) result:", item);
     return item;
   }
 
@@ -136,7 +134,6 @@ async function fetchCategory(id: string): Promise<CategoryItem | null> {
       source: "custom",
       created_at: customData.created_at,
     };
-    console.log("[useCategories] fetchCategory (custom) result:", item);
     return item;
   }
 
@@ -167,7 +164,6 @@ async function createCategory(input: CreateCategoryInput): Promise<Category> {
     throw error;
   }
 
-  console.log("[useCategories] createCategory result:", data);
   return data as Category;
 }
 
@@ -188,7 +184,6 @@ async function updateCategory({
     throw error;
   }
 
-  console.log("[useCategories] updateCategory result:", data);
   return data as Category;
 }
 
@@ -204,7 +199,6 @@ async function deleteCategory(id: string): Promise<void> {
     throw error;
   }
 
-  console.log("[useCategories] deleteCategory success, id:", id);
 }
 
 // ============ HOOKS ============
@@ -238,8 +232,7 @@ export function useCreateCategory() {
 
   return useMutation({
     mutationFn: createCategory,
-    onSuccess: (data) => {
-      console.log("[useCreateCategory] onSuccess:", data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError: (error) => {
@@ -257,7 +250,6 @@ export function useUpdateCategory() {
   return useMutation({
     mutationFn: updateCategory,
     onSuccess: (data) => {
-      console.log("[useUpdateCategory] onSuccess:", data);
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: categoryKeys.detail(data.id),
@@ -279,7 +271,6 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: deleteCategory,
     onSuccess: (_data, id) => {
-      console.log("[useDeleteCategory] onSuccess, id:", id);
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: categoryKeys.detail(id) });
     },

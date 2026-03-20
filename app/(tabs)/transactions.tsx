@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTransactions } from "@hooks/useTransactions";
 import { formatIDR } from "@lib/currency";
 import TransactionItem from "@components/TransactionItem";
+import FAB from "@components/FAB";
 import type { Transaction, TransactionType } from "../../types";
 
 type FilterType = "all" | TransactionType;
@@ -206,6 +207,8 @@ export default function Transactions() {
           </View>
         )}
       </View>
+
+      <FAB />
     </SafeAreaView>
   );
 }

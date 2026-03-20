@@ -32,7 +32,7 @@ export default function FAB() {
       icon: "scan-outline",
       onPress: () => {
         setIsOpen(false);
-        console.log("Scan invoice - not implemented yet");
+
       },
     },
   ];

@@ -105,7 +105,6 @@ async function fetchTransactions(
     category: t.category_id ? categoryMap.get(t.category_id) : undefined,
   }));
 
-  console.log("[useTransactions] fetchTransactions result:", transactions);
   return transactions;
 }
 
@@ -142,7 +141,6 @@ async function fetchMonthlyTransactions(
     category: t.category_id ? categoryMap.get(t.category_id) : undefined,
   }));
 
-  console.log("[useTransactions] fetchMonthlyTransactions result:", transactions);
   return transactions;
 }
 
@@ -169,7 +167,6 @@ async function fetchTransaction(id: string): Promise<Transaction> {
     category: data.category_id ? categoryMap.get(data.category_id) : undefined,
   };
 
-  console.log("[useTransactions] fetchTransaction result:", transaction);
   return transaction;
 }
 
@@ -214,7 +211,6 @@ async function createTransaction(
     category: data.category_id ? categoryMap.get(data.category_id) : undefined,
   };
 
-  console.log("[useTransactions] createTransaction result:", transaction);
   return transaction;
 }
 
@@ -245,7 +241,6 @@ async function updateTransaction({
     category: data.category_id ? categoryMap.get(data.category_id) : undefined,
   };
 
-  console.log("[useTransactions] updateTransaction result:", transaction);
   return transaction;
 }
 
@@ -261,7 +256,6 @@ async function deleteTransaction(id: string): Promise<void> {
     throw error;
   }
 
-  console.log("[useTransactions] deleteTransaction success, id:", id);
 }
 
 // ============ HOOKS ============
@@ -308,9 +302,7 @@ export function useCreateTransaction() {
 
   return useMutation({
     mutationFn: createTransaction,
-    onSuccess: (data) => {
-      console.log("[useCreateTransaction] onSuccess:", data);
-      // Invalidate all transaction lists (including monthly)
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
     },
     onError: (error) => {
@@ -328,7 +320,6 @@ export function useUpdateTransaction() {
   return useMutation({
     mutationFn: updateTransaction,
     onSuccess: (data) => {
-      console.log("[useUpdateTransaction] onSuccess:", data);
       queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: transactionKeys.detail(data.id),
@@ -349,7 +340,6 @@ export function useDeleteTransaction() {
   return useMutation({
     mutationFn: deleteTransaction,
     onSuccess: (_data, id) => {
-      console.log("[useDeleteTransaction] onSuccess, id:", id);
       queryClient.invalidateQueries({ queryKey: transactionKeys.lists() });
       queryClient.invalidateQueries({ queryKey: transactionKeys.detail(id) });
     },
