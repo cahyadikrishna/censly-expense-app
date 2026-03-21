@@ -19,7 +19,7 @@
         "NSPhotoLibraryUsageDescription": "Censly needs photo library access to attach receipt images.",
         "NSFaceIDUsageDescription": "Censly uses Face ID to secure your financial data."
       },
-      "bundleIdentifier": "com.anonymous.censly"
+      "bundleIdentifier": "com.humaprojekt.censly"
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +28,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.humaprojekt.censly"
     },
     "web": {
       "favicon": "./assets/favicon.png"

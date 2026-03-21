@@ -13,6 +13,8 @@ import { useTransactions } from "@hooks/useTransactions";
 import { formatIDR } from "@lib/currency";
 import TransactionItem from "@components/TransactionItem";
 import FAB from "@components/FAB";
+import { Card } from "@components/ui/Card";
+import { Button } from "@components/ui/Button";
 import type { Transaction, TransactionType } from "../../types";
 
 type FilterType = "all" | TransactionType;
@@ -86,13 +88,11 @@ export default function Transactions() {
     ({ section }: { section: { title: string; data: Transaction[] } }) => {
       const dailyTotal = getDailyTotal(section.data);
       return (
-        <View className="flex-row items-center justify-between py-3 bg-background">
-          <Text className="text-gray-500 text-sm font-medium">
-            {section.title}
-          </Text>
+        <View className="flex-row items-center justify-between py-2 px-1">
+          <Text className="text-sm font-medium text-gray-600">{section.title}</Text>
           <Text
-            className={`text-sm font-medium ${
-              dailyTotal >= 0 ? "text-accent-green" : "text-accent-red"
+            className={`text-sm font-semibold ${
+              dailyTotal >= 0 ? "text-notion-green" : "text-notion-red"
             }`}
           >
             {dailyTotal >= 0 ? "+" : ""}
@@ -115,64 +115,48 @@ export default function Transactions() {
     [handleTransactionPress]
   );
 
-  const ItemSeparator = useCallback(
-    () => <View className="h-px bg-gray-200" />,
-    []
-  );
+  const FilterButton = ({
+    filterType,
+    label,
+  }: {
+    filterType: FilterType;
+    label: string;
+  }) => {
+    const isActive = filter === filterType;
+    return (
+      <TouchableOpacity
+        className={`flex-1 px-4 py-2 rounded-lg border-2 w-full ${
+          isActive ? "bg-black border-black" : "bg-white border-black"
+        }`}
+        onPress={() => setFilter(filterType)}
+      >
+        <Text
+          className={`font-medium text-center ${isActive ? "text-white" : "text-black"}`}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="flex-1 px-5 pt-4">
-        <Text className="text-gray-900 text-2xl font-bold mb-4">Transaksi</Text>
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 pt-4 px-4">
+        <Text className="text-black text-2xl font-bold mb-4 tracking-tight">
+          Transaksi
+        </Text>
 
-        <View className="flex-row mb-4">
-          {filter === "all" ? (
-            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">Semua</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              className="px-4 py-2 rounded-lg mr-2 bg-surface"
-              onPress={() => setFilter("all")}
-            >
-              <Text className="font-medium text-gray-500">Semua</Text>
-            </TouchableOpacity>
-          )}
-
-          {filter === "expense" ? (
-            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">Pengeluaran</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              className="px-4 py-2 rounded-lg mr-2 bg-surface"
-              onPress={() => setFilter("expense")}
-            >
-              <Text className="font-medium text-gray-500">Pengeluaran</Text>
-            </TouchableOpacity>
-          )}
-
-          {filter === "income" ? (
-            <TouchableOpacity className="px-4 py-2 rounded-lg mr-2 bg-accent-green">
-              <Text className="font-medium text-white">Pemasukan</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              className="px-4 py-2 rounded-lg mr-2 bg-surface"
-              onPress={() => setFilter("income")}
-            >
-              <Text className="font-medium text-gray-500">Pemasukan</Text>
-            </TouchableOpacity>
-          )}
+        <View className="flex-row mb-4 w-full gap-2">
+          <FilterButton filterType="all" label="Semua" />
+          <FilterButton filterType="expense" label="Pengeluaran" />
+          <FilterButton filterType="income" label="Pemasukan" />
         </View>
 
         {isLoading ? (
-          <View className="flex-1 items-center justify-center">
-            <ActivityIndicator color="#22C55E" size="large" />
-            <Text className="text-gray-500 text-sm mt-4">
-              Loading transaksi nih~
-            </Text>
-          </View>
+          <Card variant="elevated" padding="lg" className="flex-1 items-center justify-center">
+            <ActivityIndicator color="#000000" size="large" />
+            <Text className="text-gray text-sm mt-4">Loading transaksi nih~</Text>
+          </Card>
         ) : sections.length > 0 ? (
           <SectionList
             sections={sections}
@@ -182,29 +166,30 @@ export default function Transactions() {
             stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
-            ItemSeparatorComponent={ItemSeparator}
+            ItemSeparatorComponent={() => <View className="h-3" />}
             initialNumToRender={15}
             maxToRenderPerBatch={10}
             windowSize={10}
           />
         ) : (
-          <View className="flex-1 items-center justify-center">
-            <Ionicons name="receipt-outline" size={64} color="#9CA3AF" />
-            <Text className="text-gray-500 text-base mt-4">
+          <Card variant="elevated" padding="lg" className="flex-1 items-center justify-center">
+            <Ionicons name="receipt-outline" size={64} color="#000000" />
+            <Text className="text-gray text-base mt-4">
               Belum ada transaksi nih~
             </Text>
-            <Text className="text-gray-400 text-sm mt-1">
+            <Text className="text-light-gray text-sm mt-1">
               {filter !== "all"
                 ? `Gada transaksi ${filter} sih`
                 : "Transaksi kamu bakalan muncul di sini~"}
             </Text>
-            <TouchableOpacity
-              className="mt-6 bg-accent-green px-6 py-3 rounded-xl"
+            <Button
+              label="Tambah Transaksi"
               onPress={() => router.push("/transaction/add")}
-            >
-              <Text className="text-white font-semibold">Tambah Transaksi</Text>
-            </TouchableOpacity>
-          </View>
+              variant="primary"
+              size="md"
+              className="mt-6"
+            />
+          </Card>
         )}
       </View>
 

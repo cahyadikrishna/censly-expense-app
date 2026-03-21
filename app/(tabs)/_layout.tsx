@@ -1,49 +1,41 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Tabs, TabList, TabTrigger, TabSlot } from "expo-router/ui";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { TabButton } from "@components/ui/TabButton";
+import { HomeIcon, TransactionIcon, SettingsIcon } from "@components/ui/icons";
+import { StyleSheet, View } from "react-native";
 
 export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: "#FFFFFF",
-          borderTopColor: "#E5E7EB",
-          height: 84,
-          paddingBottom: 24,
-          paddingTop: 8,
-        },
-        tabBarActiveTintColor: "#22C55E",
-        tabBarInactiveTintColor: "#9CA3AF",
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Beranda",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="transactions"
-        options={{
-          title: "Transaksi",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="swap-vertical" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Pengaturan",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
+      <Tabs>
+        <TabSlot />
+
+        <TabList style={styles.tabBarContainer}>
+          <TabTrigger name="index" href="/" asChild>
+            <TabButton label="Beranda" icon={<HomeIcon color="#BDBDBD" size={24} />} />
+          </TabTrigger>
+
+          <TabTrigger name="transactions" href="/transactions" asChild>
+            <TabButton label="Transaksi" icon={<TransactionIcon color="#BDBDBD" size={24} />} />
+          </TabTrigger>
+          
+          <TabTrigger name="settings" href="/settings" asChild>
+            <TabButton label="Pengaturan" icon={<SettingsIcon color="#BDBDBD" size={24} />} />
+          </TabTrigger>
+        </TabList>
+      </Tabs>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  tabBarContainer: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+
+  },
+});
