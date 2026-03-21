@@ -12,9 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@hooks/useCategories";
 import {
@@ -89,16 +87,11 @@ export default function EditTransaction() {
     setAmount(formatted);
   };
 
-  const handleDateChange = (
-    event: DateTimePickerEvent,
-    selectedDate?: Date
-  ) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
+  const handleDateChange = (_event: unknown, selectedDate?: Date) => {
+    if (!selectedDate) {
+      return;
     }
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
+    setDate(selectedDate);
   };
 
   const formatDisplayDate = (d: Date) => {
@@ -287,7 +280,7 @@ export default function EditTransaction() {
                     value={date}
                     mode="date"
                     display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={handleDateChange}
+                    onValueChange={handleDateChange}
                     maximumDate={new Date()}
                   />
                 </Card>
