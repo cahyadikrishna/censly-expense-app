@@ -9,13 +9,16 @@ export default function TabsLayout() {
     <SafeAreaView edges={["bottom"]} style={styles.safeArea}>
       <Tabs>
         <TabSlot />
+
         <TabList style={styles.tabBarContainer}>
           <TabTrigger name="index" href="/" asChild>
             <TabButton label="Beranda" icon={<HomeIcon color="#BDBDBD" size={24} />} />
           </TabTrigger>
+
           <TabTrigger name="transactions" href="/transactions" asChild>
             <TabButton label="Transaksi" icon={<TransactionIcon color="#BDBDBD" size={24} />} />
           </TabTrigger>
+          
           <TabTrigger name="settings" href="/settings" asChild>
             <TabButton label="Pengaturan" icon={<SettingsIcon color="#BDBDBD" size={24} />} />
           </TabTrigger>
@@ -33,9 +36,6 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-    paddingTop: 12,
-    paddingBottom: 20,
+
   },
 });
