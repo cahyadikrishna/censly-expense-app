@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@hooks/useCategories";
 import { useCreateTransaction } from "@hooks/useTransactions";
@@ -23,6 +22,7 @@ import { InputField } from "@components/ui/InputField";
 import { Card } from "@components/ui/Card";
 import { HeaderBackButton } from "@components/ui/HeaderBackButton";
 import ReceiptScanCard from "@components/ui/ReceiptScanCard";
+import { ModalDatePicker } from "@components/ui/ModalDatePicker";
 import type { TransactionType, CategoryItem } from "../../types";
 import type { ScanResult } from "@hooks/useScanReceipt";
 
@@ -363,19 +363,6 @@ export default function ScanResult() {
                 </Text>
               </Card>
             </TouchableOpacity>
-            {(showDatePicker || Platform.OS === "ios") && (
-              <View className={`${Platform.OS === "ios" ? "mt-2" : ""}`}>
-                <Card padding="md">
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onValueChange={handleDateChange}
-                    maximumDate={new Date()}
-                  />
-                </Card>
-              </View>
-            )}
           </View>
 
           <View className="mt-6">
@@ -421,6 +408,14 @@ export default function ScanResult() {
           )}
         </View>
       </KeyboardAvoidingView>
+
+      <ModalDatePicker
+        visible={showDatePicker}
+        value={date}
+        onClose={() => setShowDatePicker(false)}
+        onDateChange={setDate}
+        maximumDate={new Date()}
+      />
     </SafeAreaView>
   );
 }

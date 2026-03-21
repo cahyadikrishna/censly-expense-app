@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { useCategories } from "@hooks/useCategories";
 import {
@@ -27,6 +26,7 @@ import { Button } from "@components/ui/Button";
 import { InputField } from "@components/ui/InputField";
 import { Card } from "@components/ui/Card";
 import { HeaderBackButton } from "@components/ui/HeaderBackButton";
+import { ModalDatePicker } from "@components/ui/ModalDatePicker";
 import type { TransactionType, CategoryItem } from "../../types";
 
 export default function EditTransaction() {
@@ -96,9 +96,9 @@ export default function EditTransaction() {
 
   const formatDisplayDate = (d: Date) => {
     return d.toLocaleDateString("id-ID", {
-      weekday: "short",
+      weekday: "long",
       day: "numeric",
-      month: "short",
+      month: "long",
       year: "numeric",
     });
   };
@@ -273,19 +273,6 @@ export default function EditTransaction() {
                 </Text>
               </Card>
             </TouchableOpacity>
-            {(showDatePicker || Platform.OS === "ios") && (
-              <View className={`${Platform.OS === "ios" ? "mt-2" : ""}`}>
-                <Card padding="md">
-                  <DateTimePicker
-                    value={date}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onValueChange={handleDateChange}
-                    maximumDate={new Date()}
-                  />
-                </Card>
-              </View>
-            )}
           </View>
 
           <View className="mt-6">
@@ -393,14 +380,17 @@ export default function EditTransaction() {
                 disabled={deleteTransaction.isPending}
               />
             </View>
-            {deleteTransaction.isPending && (
-              <View className="items-center mt-4">
-                <ActivityIndicator color="#000000" />
-              </View>
-            )}
           </Card>
         </View>
       </Modal>
-    </SafeAreaView>
-  );
-}
+
+      <ModalDatePicker
+          visible={showDatePicker}
+          value={date}
+          onClose={() => setShowDatePicker(false)}
+          onDateChange={setDate}
+          maximumDate={new Date()}
+        />
+      </SafeAreaView>
+    );
+  }
