@@ -56,7 +56,7 @@ function CategoryChip({
       onPressOut={handlePressOut}
       activeOpacity={1}
       className={`
-        mr-3 px-4 py-3
+        mr-3 mb-3 px-4 py-3
         rounded-lg
         flex-row items-center
         border-2 border-black

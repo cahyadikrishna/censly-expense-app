@@ -125,13 +125,13 @@ export default function Transactions() {
     const isActive = filter === filterType;
     return (
       <TouchableOpacity
-        className={`px-4 py-2 rounded-lg mr-2 border-2 ${
+        className={`flex-1 px-4 py-2 rounded-lg border-2 w-full ${
           isActive ? "bg-black border-black" : "bg-white border-black"
         }`}
         onPress={() => setFilter(filterType)}
       >
         <Text
-          className={`font-medium ${isActive ? "text-white" : "text-black"}`}
+          className={`font-medium text-center ${isActive ? "text-white" : "text-black"}`}
         >
           {label}
         </Text>
@@ -141,12 +141,12 @@ export default function Transactions() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 pt-4">
+      <View className="flex-1 pt-4 px-4">
         <Text className="text-black text-2xl font-bold mb-4 tracking-tight">
           Transaksi
         </Text>
 
-        <View className="flex-row mb-4">
+        <View className="flex-row mb-4 w-full gap-2">
           <FilterButton filterType="all" label="Semua" />
           <FilterButton filterType="expense" label="Pengeluaran" />
           <FilterButton filterType="income" label="Pemasukan" />
@@ -165,7 +165,7 @@ export default function Transactions() {
             renderSectionHeader={renderSectionHeader}
             stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
             ItemSeparatorComponent={() => <View className="h-3" />}
             initialNumToRender={15}
             maxToRenderPerBatch={10}
