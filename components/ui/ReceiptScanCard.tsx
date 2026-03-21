@@ -4,32 +4,30 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withRepeat,
   Easing,
   cancelAnimation,
-  runOnJS,
 } from "react-native-reanimated";
 
 interface ReceiptScanCardProps {
   imageSource?: string | number;
   isScanning?: boolean;
-  progress?: number;
-  showProgress?: boolean;
   label?: string;
   onScanComplete?: () => void;
   containerStyle?: ViewStyle;
   size?: "small" | "medium" | "large";
+  progressIntervalMs?: number;
 }
 
 export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
   ({
     imageSource,
     isScanning = true,
-    progress = 0,
-    showProgress = true,
     label = "Scanning Receipt...",
     onScanComplete,
     containerStyle,
     size = "medium",
+    progressIntervalMs = 600,
   }) => {
     const { width: screenWidth } = useWindowDimensions();
     const cardMaxWidth = screenWidth * 0.9;
@@ -38,7 +36,11 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
     const opacity = useSharedValue(0);
     const isCompleteShared = useSharedValue(false);
     const [isCompleteLabel, setIsCompleteLabel] = useState(false);
-    const hasCompletedRef = useRef(false);
+    const [displayProgress, setDisplayProgress] = useState(0);
+
+    const progressSequence = [20, 38, 56, 80, 92];
+    const progressIndexRef = useRef(0);
+    const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const sizeStyles: Record<"small" | "medium" | "large", { width: number; height: number }> = {
       small: { width: 160, height: 160 },
@@ -52,41 +54,71 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
       scanPosition.value = 0;
       opacity.value = 1;
 
-      scanPosition.value = withTiming(1, {
-        duration: 2500,
-        easing: Easing.linear,
-      }, (finished) => {
-        if (finished && isScanning) {
-          runOnJS(startScanAnimation)();
+      scanPosition.value = withRepeat(
+        withTiming(1, {
+          duration: 2500,
+          easing: Easing.linear,
+        }),
+        -1,
+        true
+      );
+    }, []);
+
+    const stopProgressTimer = useCallback(() => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      setDisplayProgress(100);
+    }, []);
+
+    const startProgressTimer = useCallback(() => {
+      progressIndexRef.current = 0;
+      setDisplayProgress(progressSequence[0]);
+
+      progressIntervalRef.current = setInterval(() => {
+        progressIndexRef.current += 1;
+        if (progressIndexRef.current < progressSequence.length) {
+          setDisplayProgress(progressSequence[progressIndexRef.current]);
+        } else {
+          const lastSequenceValue = progressSequence[progressSequence.length - 1];
+          const nextProgress = Math.min(lastSequenceValue + 4, 100);
+          setDisplayProgress(nextProgress);
+          if (nextProgress >= 100) {
+            stopProgressTimer();
+          }
         }
-      });
-    }, [isScanning]);
+      }, progressIntervalMs);
+    }, [progressIntervalMs, stopProgressTimer]);
 
     const showComplete = useCallback(() => {
+      cancelAnimation(scanPosition);
+      stopProgressTimer();
       isCompleteShared.value = true;
       setIsCompleteLabel(true);
       opacity.value = withTiming(0, { duration: 300 });
       onScanComplete?.();
-    }, [onScanComplete]);
+    }, [onScanComplete, stopProgressTimer]);
 
     useEffect(() => {
-      if (isScanning && !hasCompletedRef.current) {
+      if (isScanning) {
+        setIsCompleteLabel(false);
+        isCompleteShared.value = false;
         startScanAnimation();
-      } else if (!isScanning && scanPosition.value > 0) {
+        startProgressTimer();
+      } else {
         cancelAnimation(scanPosition);
-        if (progress >= 100 && !hasCompletedRef.current) {
-          hasCompletedRef.current = true;
-          showComplete();
-        }
+        showComplete();
       }
 
       return () => {
         cancelAnimation(scanPosition);
+        stopProgressTimer();
       };
-    }, [isScanning, startScanAnimation, showComplete, progress]);
+    }, [isScanning]);
 
     const scanLineStyle = useAnimatedStyle(() => {
-      const translateY = (scanPosition.value + 1) * 0.5 * dimensions.height;
+      const translateY = scanPosition.value * dimensions.height;
       return {
         transform: [{ translateY }],
         opacity: opacity.value,
@@ -94,7 +126,7 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
     });
 
     const glowStyle = useAnimatedStyle(() => {
-      const translateY = (scanPosition.value + 1) * 0.5 * dimensions.height;
+      const translateY = scanPosition.value * dimensions.height;
       return {
         transform: [{ translateY }],
         opacity: opacity.value * 0.5,
@@ -134,40 +166,47 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
     };
 
     return (
-      <View style={[styles.container, containerStyle]}>
-        {label && (
-          <Text style={styles.label}>{isCompleteLabel ? "Complete!" : label}</Text>
-        )}
+      <View style={[styles.wrapper, containerStyle]}>
+        <View style={styles.container}>
+          {label && (
+            <Text style={styles.label}>{isCompleteLabel ? "Complete!" : label}</Text>
+          )}
 
-        <View style={[styles.card, { maxWidth: cardMaxWidth }]}>
-          <View style={[styles.imageContainer, dimensions]}>
-            {renderContent()}
+          <View style={[styles.card, { maxWidth: cardMaxWidth }]}>
+            <View style={[styles.imageContainer, dimensions]}>
+              {renderContent()}
 
-            <View style={[styles.overlay, dimensions]} />
+              <View style={[styles.overlay, dimensions]} />
 
-            <Animated.View style={[styles.scanLine, scanLineStyle, dimensions]}>
-              <View style={styles.scanLineInner} />
-            </Animated.View>
+              <Animated.View style={[styles.scanLine, scanLineStyle, dimensions]}>
+                <View style={styles.scanLineInner} />
+              </Animated.View>
 
-            <Animated.View style={[styles.glowLine, glowStyle, dimensions]} />
+              <Animated.View style={[styles.glowLine, glowStyle, dimensions]} />
 
-            <Animated.View style={[styles.successOverlay, successStyle, dimensions]}>
-              <View style={styles.checkmark}>
-                <Text style={styles.checkmarkText}>✓</Text>
-              </View>
-            </Animated.View>
+              <Animated.View style={[styles.successOverlay, successStyle, dimensions]}>
+                <View style={styles.checkmark}>
+                  <Text style={styles.checkmarkText}>✓</Text>
+                </View>
+              </Animated.View>
+            </View>
           </View>
-        </View>
 
-        {showProgress && isScanning && (
-          <Text style={styles.progress}>{Math.round(progress)}% Complete</Text>
-        )}
+          {isScanning && (
+            <Text style={styles.progress}>{displayProgress}% Complete</Text>
+          )}
+        </View>
       </View>
     );
   }
 );
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     alignItems: "center",
   },

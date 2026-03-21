@@ -63,8 +63,6 @@ const ScanningDemo: React.FC<DemoPageProps> = ({ navigation }) => {
           <ReceiptScanCard
             imageSource={showImage ? "https://picsum.photos/400/400" : undefined}
             isScanning={isScanning}
-            progress={progress}
-            showProgress={true}
             label="Scanning document..."
             onScanComplete={handleScanComplete}
             size="large"

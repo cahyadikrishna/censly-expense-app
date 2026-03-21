@@ -189,8 +189,6 @@ export default function ScanResult() {
         <ReceiptScanCard
           imageSource={params.uri}
           isScanning={isScanning}
-          progress={scanProgress}
-          showProgress={true}
           label="Menganalisis struk..."
           size="medium"
         />
