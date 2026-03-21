@@ -7,6 +7,7 @@
 ## BORDERS & SHADOWS
 
 ### Border Specifications
+
 ```
 Standard Elements:
   Width: 2px solid #000000
@@ -22,6 +23,7 @@ Cards:
 ```
 
 ### Doodle Shadow (Hover State)
+
 ```
 CSS:
   box-shadow: 4px 4px 2px rgba(0,0,0,1), 0px 6px 3px rgba(0,0,0,0.3);
@@ -41,20 +43,21 @@ React Native:
 
 ## COLOR PALETTE
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Primary Black | `#000000` | Borders, text, buttons |
-| White | `#FFFFFF` | Backgrounds |
-| Dark Gray | `#333333` | Headings |
-| Gray | `#666666` | Body text |
-| Light Gray | `#999999` | Placeholders, secondary text |
-| Off-white | `#F9F9F9` | Hover backgrounds, sections |
+| Color         | Hex       | Usage                        |
+| ------------- | --------- | ---------------------------- |
+| Primary Black | `#000000` | Borders, text, buttons       |
+| White         | `#FFFFFF` | Backgrounds                  |
+| Dark Gray     | `#333333` | Headings                     |
+| Gray          | `#666666` | Body text                    |
+| Light Gray    | `#999999` | Placeholders, secondary text |
+| Off-white     | `#F9F9F9` | Hover backgrounds, sections  |
 
 ---
 
 ## TYPOGRAPHY QUICK STYLES
 
 ### Headers
+
 ```
 H1: 32-40px, bold (700), -0.02em tracking
 H2: 24-28px, bold (700), -0.01em tracking
@@ -62,6 +65,7 @@ H3: 18-20px, bold (700)
 ```
 
 ### Body
+
 ```
 Regular: 16px, 400, 1.6 line-height
 Small: 14px, 400
@@ -69,6 +73,7 @@ Label: 12px, 600, 0.05em tracking (uppercase)
 ```
 
 ### Fonts
+
 ```
 Display: DM Sans, Playfair Display
 Body: Inter, IBM Plex Sans
@@ -79,6 +84,7 @@ Body: Inter, IBM Plex Sans
 ## COMPONENT QUICK SPECS
 
 ### INPUT FIELD
+
 ```
 Border: 2px black
 Padding: 12px 16px
@@ -88,23 +94,25 @@ Hover: Add doodle shadow
 ```
 
 ### BUTTON
+
 ```
 Primary:
   Border: 3px black
   Background: black
   Text: white
   Padding: 14px 24px
-  
+
 Outline:
   Border: 3px black
   Background: white
   Text: black
-  
+
 Hover: Add doodle shadow + scale 1.02
 Active: Scale 0.95
 ```
 
 ### CARD
+
 ```
 Border: 2px black
 Radius: 12px
@@ -114,6 +122,7 @@ Hover: Doodle shadow + scale 1.01
 ```
 
 ### TOGGLE
+
 ```
 Width: 48px | Height: 28px
 Border: 2px black
@@ -124,6 +133,7 @@ Transition: 200ms ease
 ```
 
 ### BADGE
+
 ```
 Border: 2px black
 Padding: 6px 12px
@@ -142,6 +152,7 @@ sm: 8px      lg: 16px     3xl: 48px
 ```
 
 ### Component Padding
+
 - Buttons: 14px (v) × 24px (h)
 - Inputs: 12px (v) × 16px (h)
 - Cards: 20-24px
@@ -153,6 +164,7 @@ sm: 8px      lg: 16px     3xl: 48px
 ## STATES & TRANSITIONS
 
 ### All Elements
+
 ```
 Transition duration: 200ms
 Easing: ease-out
@@ -160,6 +172,7 @@ Properties: shadow, scale, background-color
 ```
 
 ### Focus State
+
 ```
 Outline: 2px solid black with 2px offset
 Duration: 150ms
@@ -167,6 +180,7 @@ Easing: ease-in-out
 ```
 
 ### Active/Click
+
 ```
 Scale: 0.95 (compress effect)
 Duration: 100ms
@@ -178,6 +192,7 @@ Easing: ease-in
 ## DOODLE ILLUSTRATIONS
 
 ### Style Guidelines
+
 ```
 Line weight: 2-3px strokes
 Color: Black on white (or white on black)
@@ -188,6 +203,7 @@ Spacing: Generous white space
 ```
 
 ### Placement
+
 ```
 Hero sections: 150-300px
 Empty states: 120-180px
@@ -257,6 +273,7 @@ Colors:
 ## REACT NATIVE SPECIFIC
 
 ### Shadow Implementation
+
 ```javascript
 // Instead of Tailwind box-shadow, use:
 style={{
@@ -276,6 +293,7 @@ style={{
 ```
 
 ### NativeWind Limitations
+
 ```
 - Box-shadow works but translates to platform-specific shadows
 - Use elevation + shadowColor/Offset for consistency
@@ -294,25 +312,26 @@ module.exports = {
   theme: {
     extend: {
       boxShadow: {
-        'doodle': '4px 4px 2px rgba(0, 0, 0, 1), 0px 6px 3px rgba(0, 0, 0, 0.3)',
-        'doodle-sm': '3px 3px 1px rgba(0, 0, 0, 0.5)',
-        'doodle-lg': '6px 6px 3px rgba(0, 0, 0, 1), 0px 8px 4px rgba(0, 0, 0, 0.4)',
+        doodle: "4px 4px 2px rgba(0, 0, 0, 1), 0px 6px 3px rgba(0, 0, 0, 0.3)",
+        "doodle-sm": "3px 3px 1px rgba(0, 0, 0, 0.5)",
+        "doodle-lg":
+          "6px 6px 3px rgba(0, 0, 0, 1), 0px 8px 4px rgba(0, 0, 0, 0.4)",
       },
       scale: {
-        '102': '1.02',
-        '101': '1.01',
-        '95': '0.95',
+        102: "1.02",
+        101: "1.01",
+        95: "0.95",
       },
       borderWidth: {
-        '3': '3px',
+        3: "3px",
       },
       letterSpacing: {
-        'tight': '-0.02em',
-        'tight-sm': '-0.01em',
+        tight: "-0.02em",
+        "tight-sm": "-0.01em",
       },
     },
   },
-}
+};
 ```
 
 ---
@@ -366,6 +385,7 @@ src/
 If you have an existing generic Tailwind component:
 
 **Before:**
+
 ```jsx
 <button className="px-6 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800">
   Click me
@@ -373,8 +393,10 @@ If you have an existing generic Tailwind component:
 ```
 
 **After:**
+
 ```jsx
-<button className="
+<button
+  className="
   px-6 py-3
   bg-black
   text-white
