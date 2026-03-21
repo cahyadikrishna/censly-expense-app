@@ -127,7 +127,7 @@ export default function Home() {
             <Text className="text-gray text-sm mt-2">Tunggu bentar ya~</Text>
           </Card>
         ) : recentTransactions.length > 0 ? (
-          <Card variant="elevated" padding="none">
+          <Card variant="default" padding="none" style={{borderColor: "transparent", gap: 8}}>
             {recentTransactions.map((transaction, index) => (
               <TransactionItem
                 key={transaction.id}

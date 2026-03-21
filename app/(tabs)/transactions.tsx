@@ -88,11 +88,11 @@ export default function Transactions() {
     ({ section }: { section: { title: string; data: Transaction[] } }) => {
       const dailyTotal = getDailyTotal(section.data);
       return (
-        <View className="flex-row items-center justify-between py-3 bg-white">
-          <Text className="text-sm font-medium text-gray">{section.title}</Text>
+        <View className="flex-row items-center justify-between py-2 px-1">
+          <Text className="text-sm font-medium text-gray-600">{section.title}</Text>
           <Text
-            className={`text-sm font-medium ${
-              dailyTotal >= 0 ? "text-accent-green" : "text-accent-red"
+            className={`text-sm font-semibold ${
+              dailyTotal >= 0 ? "text-notion-green" : "text-notion-red"
             }`}
           >
             {dailyTotal >= 0 ? "+" : ""}
@@ -141,7 +141,7 @@ export default function Transactions() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-5 pt-4">
+      <View className="flex-1 pt-4">
         <Text className="text-black text-2xl font-bold mb-4 tracking-tight">
           Transaksi
         </Text>
@@ -165,10 +165,8 @@ export default function Transactions() {
             renderSectionHeader={renderSectionHeader}
             stickySectionHeadersEnabled={false}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            ItemSeparatorComponent={() => (
-              <View className="h-px bg-black mx-4" />
-            )}
+            contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 20 }}
+            ItemSeparatorComponent={() => <View className="h-3" />}
             initialNumToRender={15}
             maxToRenderPerBatch={10}
             windowSize={10}
