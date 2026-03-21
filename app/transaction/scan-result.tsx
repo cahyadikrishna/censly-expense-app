@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ import { Button } from "@components/ui/Button";
 import { InputField } from "@components/ui/InputField";
 import { Card } from "@components/ui/Card";
 import { HeaderBackButton } from "@components/ui/HeaderBackButton";
+import ReceiptScanCard from "@components/ui/ReceiptScanCard";
 import type { TransactionType, CategoryItem } from "../../types";
 import type { ScanResult } from "@hooks/useScanReceipt";
 
@@ -38,6 +39,8 @@ export default function ScanResult() {
   const [imagePath, setImagePath] = useState<string>("");
   const [isScanning, setIsScanning] = useState(true);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [scanProgress, setScanProgress] = useState(0);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const [type, setType] = useState<TransactionType>("expense");
   const [amount, setAmount] = useState("");
@@ -49,6 +52,25 @@ export default function ScanResult() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const { data: categories, isLoading: categoriesLoading } = useCategories(type);
+
+  useEffect(() => {
+    if (params.uri && isScanning) {
+      progressIntervalRef.current = setInterval(() => {
+        setScanProgress((prev) => {
+          if (prev >= 90) {
+            return prev;
+          }
+          return prev + Math.random() * 10;
+        });
+      }, 400);
+    }
+
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [params.uri, isScanning]);
 
   useEffect(() => {
     if (params.uri) {
@@ -71,10 +93,17 @@ export default function ScanResult() {
           }
 
           setIsScanning(false);
+          setScanProgress(100);
+          if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+          }
         },
         onError: () => {
           setScanError("Gagal memindai struk. Coba lagi ya~");
           setIsScanning(false);
+          if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+          }
         },
       });
     }
@@ -157,8 +186,14 @@ export default function ScanResult() {
   if (isScanning) {
     return (
       <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#000000" />
-        <Text className="text-gray mt-4">Menganalisis struk...</Text>
+        <ReceiptScanCard
+          imageSource={params.uri}
+          isScanning={isScanning}
+          progress={scanProgress}
+          showProgress={true}
+          label="Menganalisis struk..."
+          size="medium"
+        />
       </SafeAreaView>
     );
   }
