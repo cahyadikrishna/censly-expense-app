@@ -12,6 +12,7 @@ export default function TransactionLayout() {
           fontWeight: "600",
         },
         headerShadowVisible: false,
+        headerBackVisible: false,
         contentStyle: {
           backgroundColor: "#FFFFFF",
         },
@@ -36,7 +37,6 @@ export default function TransactionLayout() {
         options={{
           title: "Scan Struk",
           presentation: "modal",
-          headerBackTitle: "Batal",
         }}
       />
     </Stack>

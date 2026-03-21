@@ -20,6 +20,7 @@ import CategoryChip from "@components/CategoryChip";
 import { Button } from "@components/ui/Button";
 import { InputField } from "@components/ui/InputField";
 import { Card } from "@components/ui/Card";
+import { HeaderBackButton } from "@components/ui/HeaderBackButton";
 import type { TransactionType, CategoryItem } from "../../types";
 
 export default function AddTransaction() {
@@ -92,6 +93,7 @@ export default function AddTransaction() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom"]}>
+      <HeaderBackButton />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
