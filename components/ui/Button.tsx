@@ -106,7 +106,7 @@ export const Button = React.memo<ButtonProps>(
         `}
         style={[
           animatedContainerStyle,
-          !disabled && !loading && {
+          !disabled && !loading && variant !== "primary" && {
             shadowColor: "#000",
             shadowOffset: { width: 4, height: 4 },
             shadowOpacity: 1,

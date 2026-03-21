@@ -149,7 +149,7 @@ export default function FAB() {
 
       <View className="absolute bottom-24 right-5">
         {isOpen && (
-          <Animated.View className="mb-3" style={animatedMenuStyle}>
+          <Animated.View className="mb-3 items-end" style={animatedMenuStyle}>
             {menuItems.map((item, index) => (
               <TouchableOpacity
                 key={index}
@@ -168,33 +168,25 @@ export default function FAB() {
           </Animated.View>
         )}
 
-        <AnimatedTouchable
-          className={`
-            w-14 h-14 rounded-full items-center justify-center
-            border-[3px] border-black
-            ${isOpen ? "bg-white" : "bg-black"}
-          `}
-          onPress={toggleMenu}
-          onPressIn={handleMainPressIn}
-          onPressOut={handleMainPressOut}
-          activeOpacity={1}
-          style={[
-            animatedMainStyle,
-            {
-              shadowColor: "#000",
-              shadowOffset: { width: 4, height: 4 },
-              shadowOpacity: 1,
-              shadowRadius: 0,
-              elevation: 8,
-            },
-          ]}
-        >
-          <Ionicons
-            name={isOpen ? "close" : "add"}
-            size={28}
-            color={isOpen ? "#000000" : "#FFFFFF"}
-          />
-        </AnimatedTouchable>
+        <View className="flex-row justify-end">
+          <AnimatedTouchable
+            className="w-14 h-14 rounded-full items-center justify-center border-[3px] border-black"
+            onPress={toggleMenu}
+            onPressIn={handleMainPressIn}
+            onPressOut={handleMainPressOut}
+            activeOpacity={1}
+            style={[
+              animatedMainStyle,
+              isOpen ? { backgroundColor: "#FFFFFF" } : { backgroundColor: "#000000" }
+            ]}
+          >
+            <Ionicons
+              name={isOpen ? "close" : "add"}
+              size={28}
+              color={isOpen ? "#000000" : "#FFFFFF"}
+            />
+          </AnimatedTouchable>
+        </View>
       </View>
     </>
   );
