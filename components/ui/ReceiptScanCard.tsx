@@ -1,15 +1,12 @@
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { View, Text, Image, StyleSheet, ViewStyle, useWindowDimensions } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  withRepeat,
-  withSequence,
   Easing,
   cancelAnimation,
   runOnJS,
-  interpolate,
 } from "react-native-reanimated";
 
 interface ReceiptScanCardProps {
@@ -39,7 +36,8 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
 
     const scanPosition = useSharedValue(0);
     const opacity = useSharedValue(0);
-    const isComplete = useSharedValue(false);
+    const isCompleteShared = useSharedValue(false);
+    const [isCompleteLabel, setIsCompleteLabel] = useState(false);
     const hasCompletedRef = useRef(false);
 
     const sizeStyles: Record<"small" | "medium" | "large", { width: number; height: number }> = {
@@ -65,7 +63,8 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
     }, [isScanning]);
 
     const showComplete = useCallback(() => {
-      isComplete.value = true;
+      isCompleteShared.value = true;
+      setIsCompleteLabel(true);
       opacity.value = withTiming(0, { duration: 300 });
       onScanComplete?.();
     }, [onScanComplete]);
@@ -104,12 +103,10 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
 
     const successStyle = useAnimatedStyle(() => {
       return {
-        opacity: isComplete.value ? 1 : 0,
-        transform: [{ scale: isComplete.value ? 1 : 0.5 }],
+        opacity: isCompleteShared.value ? 1 : 0,
+        transform: [{ scale: isCompleteShared.value ? 1 : 0.5 }],
       };
     });
-
-    const isCompleteValue = isComplete.value;
 
     const renderContent = () => {
       if (imageSource) {
@@ -139,7 +136,7 @@ export const ReceiptScanCard = React.memo<ReceiptScanCardProps>(
     return (
       <View style={[styles.container, containerStyle]}>
         {label && (
-          <Text style={styles.label}>{isCompleteValue ? "Complete!" : label}</Text>
+          <Text style={styles.label}>{isCompleteLabel ? "Complete!" : label}</Text>
         )}
 
         <View style={[styles.card, { maxWidth: cardMaxWidth }]}>
